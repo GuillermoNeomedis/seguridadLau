@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen de Recuperación · Seguridad II · UCJC</title>
+<style>
+  :root{
+    --bg:#f3efe4;
+    --paper:#fffdf8;
+    --ink:#161a22;
+    --navy:#13203a;
+    --navy2:#1c3157;
+    --accent:#c97a2e;
+    --accent-dark:#a8601d;
+    --ok:#2f6b4f;
+    --ok-bg:#e7f2ec;
+    --bad:#a23b2e;
+    --bad-bg:#f7e8e4;
+    --line:#ddd6c2;
+    --muted:#6b6456;
+    --t1:#9aa3ad; --t2:#7d8aa0; --t3:#5c6f94;
+    --t4:#c97a2e; --t5:#b86424; --t6:#a14f1a;
+    --t7:#4a3b35; --t8:#2e2521; --t9:#161210;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(20,32,58,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 14px 60px;
+  }
+  .sans{ font-family: 'Segoe UI', system-ui, -apple-system, Helvetica, Arial, sans-serif; }
+  .wrap{ width:100%; max-width:760px; }
+
+  /* ---------- Header / credential strip ---------- */
+  .credential{
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    color:#f3efe4;
+    border-radius:14px;
+    padding:22px 26px;
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 10px 30px -12px rgba(20,32,58,0.55);
+  }
+  .credential::before{
+    content:"";
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 10px, transparent 10px 20px);
+  }
+  .credential .eyebrow{
+    font-family:inherit;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:11px;
+    color:var(--accent);
+    font-weight:700;
+    margin-bottom:6px;
+    position:relative;
+  }
+  .credential h1{
+    margin:0 0 4px;
+    font-size:clamp(22px,4vw,30px);
+    font-weight:400;
+    letter-spacing:.01em;
+    position:relative;
+  }
+  .credential p{
+    margin:0;
+    font-size:13.5px;
+    color:#c9cfe0;
+    position:relative;
+    max-width:520px;
+  }
+  .badge-corner{
+    position:absolute; top:14px; right:18px;
+    width:46px;height:46px;border-radius:50%;
+    border:2px solid var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px; color:var(--accent); font-weight:700;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:26px 28px;
+    margin-bottom:18px;
+    box-shadow:0 2px 0 var(--line);
+  }
+
+  /* ---------- Gauge / nivel de amenaza progress ---------- */
+  .gauge{
+    display:flex; gap:3px; margin:14px 0 6px;
+  }
+  .gauge .seg{
+    flex:1; height:10px; border-radius:3px; background:#e4ddc9;
+    position:relative;
+  }
+  .gauge .seg.done{ background: var(--seg-color, var(--accent)); }
+  .gauge .seg.block-end{ margin-right:6px; }
+  .gauge-label{
+    font-family:inherit; font-size:11.5px; color:var(--muted);
+    display:flex; justify-content:space-between;
+    text-transform:uppercase; letter-spacing:.08em;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:inherit;
+    font-size:15px;
+    border:none;
+    border-radius:8px;
+    padding:13px 22px;
+    cursor:pointer;
+    background:var(--navy);
+    color:#f3efe4;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .btn:hover{ background:var(--navy2); }
+  .btn:active{ transform:translateY(1px); }
+  .btn.accent{ background:var(--accent); color:#221404; }
+  .btn.accent:hover{ background:var(--accent-dark); }
+  .btn.ghost{ background:transparent; color:var(--navy); border:1.5px solid var(--navy); }
+  .btn.ghost:hover{ background:rgba(20,32,58,0.06); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+
+  /* ---------- Landing ---------- */
+  .block-pick{
+    display:grid; gap:12px; margin-top:18px;
+  }
+  .block-card{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    display:flex; align-items:center; gap:14px;
+    background:#fffefb;
+  }
+  .block-num{
+    font-family:inherit; font-weight:700; font-size:26px;
+    color:var(--accent); width:38px; flex-shrink:0; text-align:center;
+  }
+  .block-card h3{ margin:0 0 3px; font-size:16px; font-weight:600; }
+  .block-card p{ margin:0; font-size:13px; color:var(--muted); font-family: 'Segoe UI', system-ui, sans-serif;}
+
+  /* ---------- Question ---------- */
+  .qmeta{
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--muted); margin-bottom:10px; display:flex; justify-content:space-between;
+  }
+  .qtext{
+    font-size:19px; line-height:1.4; margin:0 0 18px; color:var(--ink);
+  }
+  .opt{
+    display:block; width:100%; text-align:left;
+    border:1.5px solid var(--line); background:#fff;
+    border-radius:9px; padding:13px 16px; margin-bottom:10px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size:15px; cursor:pointer; transition:border-color .12s, background .12s;
+    color:var(--ink);
+  }
+  .opt:hover:not(:disabled){ border-color:var(--accent); background:#fdf6ed; }
+  .opt .letter{
+    display:inline-flex; width:22px;height:22px;border-radius:50%;
+    border:1.5px solid var(--line); align-items:center; justify-content:center;
+    font-size:12px; margin-right:10px; font-weight:700; color:var(--muted);
+  }
+  .opt.correct{ border-color:var(--ok); background:var(--ok-bg); }
+  .opt.correct .letter{ border-color:var(--ok); color:var(--ok); }
+  .opt.wrong{ border-color:var(--bad); background:var(--bad-bg); }
+  .opt.wrong .letter{ border-color:var(--bad); color:var(--bad); }
+  .opt:disabled{ cursor:default; }
+
+  .explain{
+    margin-top:14px; padding:13px 16px; border-radius:9px;
+    background:#f7f3e7; border-left:4px solid var(--accent);
+    font-family:'Segoe UI', system-ui, sans-serif; font-size:13.5px; color:#4a4334;
+    display:none;
+  }
+  .explain.show{ display:block; }
+
+  /* ---------- Summary ---------- */
+  .score-big{
+    font-size:46px; font-weight:400; color:var(--navy); margin:4px 0;
+  }
+  table.breakdown{ width:100%; border-collapse:collapse; font-family:'Segoe UI', system-ui, sans-serif; font-size:13.5px; margin-top:10px;}
+  table.breakdown th, table.breakdown td{ text-align:left; padding:7px 6px; border-bottom:1px solid var(--line);}
+  table.breakdown th{ color:var(--muted); font-weight:600; text-transform:uppercase; font-size:11px; letter-spacing:.05em;}
+  .pillrow{ display:flex; align-items:center; gap:8px; }
+  .pill{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:11.5px; font-family:'Segoe UI',system-ui,sans-serif; font-weight:700;}
+  .pill.ok{ background:var(--ok-bg); color:var(--ok); }
+  .pill.bad{ background:var(--bad-bg); color:var(--bad); }
+
+  .review-item{ border-bottom:1px solid var(--line); padding:14px 0; }
+  .review-item:last-child{ border-bottom:none; }
+  .review-q{ font-size:15px; margin-bottom:8px; }
+  .review-ans{ font-family:'Segoe UI',system-ui,sans-serif; font-size:13.5px; margin:3px 0; }
+  .review-ans.your-wrong{ color:var(--bad); }
+  .review-ans.correct-ans{ color:var(--ok); }
+
+  footer.note{
+    font-family:'Segoe UI',system-ui,sans-serif;
+    font-size:12px; color:var(--muted); text-align:center; margin-top:18px; line-height:1.6;
+  }
+  .hidden{ display:none !important; }
+  @media (max-width:480px){
+    .credential{ padding:18px 18px; }
+    .card{ padding:20px 18px; }
+    .badge-corner{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="credential">
+    <div class="badge-corner">UCJC</div>
+    <div class="eyebrow sans">Examen de recuperación &middot; Acceso autorizado</div>
+    <h1>Seguridad II &mdash; Simulacro tipo test</h1>
+    <p class="sans">225 preguntas repartidas en 3 bloques de dificultad progresiva (3 niveles de 25 preguntas cada uno por bloque), basadas en tus apuntes y en el examen parcial de referencia.</p>
+  </div>
+
+  <!-- ============ LANDING ============ -->
+  <div id="screen-landing" class="card">
+    <h2 class="sans" style="margin-top:0;">Elige cómo quieres empezar</h2>
+    <p class="sans" style="color:var(--muted); font-size:13.5px; margin-top:-6px;">
+      Cada bloque tiene 75 preguntas. Dentro de cada bloque, la dificultad sube cada 25 preguntas.
+      Puedes hacerlos en orden o entrar directamente al bloque que necesites repasar.
+    </p>
+    <div class="block-pick">
+      <div class="block-card">
+        <div class="block-num">I</div>
+        <div>
+          <h3>Bloque 1 &middot; Nivel fácil&rarr;medio</h3>
+          <p>Preguntas 1&ndash;75. Conceptos básicos de seguridad pública, privada y normativa de eventos.</p>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">II</div>
+        <div>
+          <h3>Bloque 2 &middot; Nivel medio&rarr;medio-alto</h3>
+          <p>Preguntas 76&ndash;150. Planes de autoprotección, PRL, círculos concéntricos, UE.</p>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">III</div>
+        <div>
+          <h3>Bloque 3 &middot; Nivel alto&rarr;máximo</h3>
+          <p>Preguntas 151&ndash;225. Casos integrados, trampas típicas de examen, supuestos complejos.</p>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn accent" onclick="startBlock(0)">Empezar por el Bloque 1</button>
+      <button class="btn ghost" onclick="startBlock(1)">Ir al Bloque 2</button>
+      <button class="btn ghost" onclick="startBlock(2)">Ir al Bloque 3</button>
+    </div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="qmeta">
+      <span id="qm-block"></span>
+      <span id="qm-counter"></span>
+    </div>
+    <div class="gauge" id="gauge"></div>
+    <div class="gauge-label sans"><span id="gauge-left">Fácil</span><span id="gauge-right">Difícil</span></div>
+    <h2 class="qtext" id="qtext" style="margin-top:18px;"></h2>
+    <div id="options"></div>
+    <div class="explain" id="explain"></div>
+    <div class="btn-row">
+      <button class="btn accent" id="btn-next" onclick="nextQuestion()" disabled>Siguiente</button>
+      <button class="btn ghost" onclick="resetBlockConfirm()">Reiniciar bloque</button>
+      <button class="btn ghost" onclick="goLandingConfirm()">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- ============ BLOCK SUMMARY ============ -->
+  <div id="screen-blocksummary" class="card hidden">
+    <h2 class="sans" id="bs-title" style="margin-top:0;"></h2>
+    <div class="score-big sans" id="bs-score"></div>
+    <p class="sans" id="bs-sub" style="color:var(--muted); font-size:13.5px;"></p>
+    <table class="breakdown" id="bs-table"></table>
+    <div class="btn-row">
+      <button class="btn accent" id="bs-continue" onclick="continueFromBlockSummary()">Continuar</button>
+      <button class="btn ghost" onclick="showReview('block')">Ver fallos de este bloque</button>
+      <button class="btn ghost" onclick="goLanding()">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- ============ FINAL SUMMARY ============ -->
+  <div id="screen-final" class="card hidden">
+    <h2 class="sans" style="margin-top:0;">Resultado final</h2>
+    <div class="score-big sans" id="final-score"></div>
+    <p class="sans" id="final-sub" style="color:var(--muted); font-size:13.5px;"></p>
+    <table class="breakdown" id="final-table"></table>
+    <div class="btn-row">
+      <button class="btn accent" onclick="showReview('all')">Revisar todas las preguntas falladas</button>
+      <button class="btn ghost" onclick="restartAll()">Empezar de nuevo</button>
+    </div>
+  </div>
+
+  <!-- ============ REVIEW ============ -->
+  <div id="screen-review" class="card hidden">
+    <h2 class="sans" style="margin-top:0;">Repaso de fallos</h2>
+    <p class="sans" id="review-empty" style="color:var(--muted); display:none;">¡Sin fallos en esta selección! 🎉</p>
+    <div id="review-list"></div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="goLanding()">Volver al inicio</button>
+    </div>
+  </div>
+
+  <footer class="note">
+    Material de repaso generado a partir de los apuntes de Seguridad y del examen parcial de referencia (UCJC).
+    No sustituye la revisión de la legislación original.
+  </footer>
+</div>
+
+<script>
+const QUESTIONS = [{"q": "¿Cuál es la naturaleza de la Guardia Civil?", "options": ["Civil", "Militar", "Mixta", "Autonómica"], "correct": 1, "exp": "La Guardia Civil es un cuerpo de naturaleza militar, sujeta a la jefatura del Estado.", "tier": 1}, {"q": "¿De qué ministerio depende la Policía Nacional?", "options": ["Ministerio de Defensa", "Ministerio de Justicia", "Ministerio del Interior", "Ministerio de Hacienda"], "correct": 2, "exp": "La Policía Nacional depende del Ministerio del Interior.", "tier": 1}, {"q": "¿De qué ministerio depende la Policía Judicial?", "options": ["Ministerio del Interior", "Ministerio de Justicia", "Ministerio de Defensa", "Ministerio de Presidencia"], "correct": 1, "exp": "La Policía Judicial es un órgano del poder judicial y depende del Ministerio de Justicia.", "tier": 1}, {"q": "Según el artículo 149.29 de la Constitución, la seguridad pública es...", "options": ["Competencia exclusiva de las CCAA", "Competencia exclusiva del Estado", "Competencia compartida al 50%", "Competencia municipal"], "correct": 1, "exp": "El art. 149.29 CE reserva la seguridad pública como competencia exclusiva del Estado, sin perjuicio de la creación de policías autonómicas.", "tier": 1}, {"q": "¿Cuántas Comunidades Autónomas tienen policía autonómica propia creada?", "options": ["2", "4", "6", "17"], "correct": 1, "exp": "País Vasco, Cataluña, Navarra y Canarias tienen policía autonómica propia.", "tier": 1}, {"q": "¿La protección civil está recogida en la Constitución Española?", "options": ["Sí, en el art. 149", "Sí, en los Estatutos de Autonomía", "No, en ninguno de los dos", "Sí, en ambos"], "correct": 2, "exp": "La protección civil no está contemplada ni en la Constitución ni en los Estatutos de Autonomía.", "tier": 1}, {"q": "¿Se aplica el silencio administrativo en materia de protección civil?", "options": ["Sí, siempre", "No, nunca", "Solo si pasan 6 meses", "Solo en eventos pequeños"], "correct": 1, "exp": "En protección civil no se aplica el silencio administrativo; debe haber respuesta expresa.", "tier": 1}, {"q": "¿Qué ley regula la Seguridad Privada en España?", "options": ["Ley 5/2014", "Ley 31/1995", "LO 2/1986", "RD 393/2007"], "correct": 0, "exp": "La Ley 5/2014, de 4 de abril, de Seguridad Privada (LSP).", "tier": 1}, {"q": "La seguridad privada respecto a la seguridad pública es...", "options": ["Sustitutiva", "Independiente", "Complementaria y subordinada", "Superior jerárquicamente"], "correct": 2, "exp": "La LSP establece que las actividades de seguridad privada son complementarias y subordinadas a la seguridad pública.", "tier": 1}, {"q": "¿Cuál es la medida de autoprotección por excelencia según los apuntes?", "options": ["El botiquín", "El extintor", "La señal de salida", "El plan de evacuación"], "correct": 1, "exp": "El extintor es la medida de autoprotección por excelencia.", "tier": 1}, {"q": "En la teoría de los círculos concéntricos, ¿cuántos círculos se utilizan normalmente?", "options": ["2", "3", "4", "5"], "correct": 1, "exp": "Normalmente se utilizan 3 círculos, aunque podrían ser más.", "tier": 1}, {"q": "En la teoría de los círculos concéntricos, ¿cómo se llama el primer círculo?", "options": ["La cápsula", "El puesto de control", "Las patrullas móviles", "La línea de recibimiento"], "correct": 0, "exp": "El 1er círculo es la cápsula: la escolta personal inmediata.", "tier": 1}, {"q": "¿Cuál es el orden correcto de los principios de acción de un plan integral de seguridad (DPR)?", "options": ["Protección-Disuasión-Reacción", "Disuasión-Protección-Reacción", "Reacción-Disuasión-Protección", "Protección-Reacción-Disuasión"], "correct": 1, "exp": "El orden es Disuasión, Protección, Reacción (DPR).", "tier": 1}, {"q": "¿Debe existir siempre un Plan de Prevención de Riesgos Laborales (PRL) en un evento?", "options": ["Solo si el aforo supera 2000 personas", "Sí, siempre", "No, solo si hay plan de autoprotección", "Solo si lo pide protección civil"], "correct": 1, "exp": "El PRL debe existir siempre porque las empresas tienen el deber de proteger a sus trabajadores.", "tier": 1}, {"q": "¿Cuántos capítulos tiene, según la normativa, un Plan de Autoprotección (PAU)?", "options": ["5", "7", "9", "12"], "correct": 2, "exp": "Todos los PAU tienen 9 capítulos y 3 anexos, según el Anexo II del RD 393/2007.", "tier": 1}, {"q": "¿Cuántos anexos tiene un Plan de Autoprotección (PAU)?", "options": ["1", "2", "3", "4"], "correct": 2, "exp": "Todos los PAU tienen 3 anexos según el Anexo II del RD 393/2007.", "tier": 1}, {"q": "¿Qué regula el Real Decreto 2816/1982?", "options": ["La Norma Básica de Autoprotección", "El Reglamento General de Policía de Espectáculos Públicos y Actividades Recreativas", "La Ley de Seguridad Privada", "La Ley de Prevención de Riesgos Laborales"], "correct": 1, "exp": "El RD 2816/1982 aprobó el Reglamento General de Policía de Espectáculos Públicos y Actividades Recreativas.", "tier": 1}, {"q": "¿Quién puede emitir un certificado válido tras una Asistencia Técnica Externa (ATE)?", "options": ["Cualquier empresa de seguridad", "Solo el técnico (ATE), con nombre, apellidos y DNI", "El propio montador", "El organizador del evento"], "correct": 1, "exp": "El certificado debe ser emitido por el ATE como persona física, identificada con nombre, apellidos y DNI.", "tier": 1}, {"q": "¿Cuáles son los tres componentes del triángulo del fuego?", "options": ["Calor, combustible, comburente", "Agua, aire, tierra", "Oxígeno, hidrógeno, carbono", "Madera, gasolina, electricidad"], "correct": 0, "exp": "El triángulo del fuego (3Cs) lo forman calor (foco de ignición), combustible y comburente.", "tier": 1}, {"q": "¿De qué tipo es un incendio cuyo combustible es sólido, como la madera?", "options": ["Tipo A", "Tipo B", "Tipo C", "Tipo D"], "correct": 0, "exp": "Los incendios de tipo A son de combustible sólido y pueden apagarse con agua.", "tier": 1}, {"q": "¿De qué tipo es un incendio cuyo combustible es líquido, como la gasolina?", "options": ["Tipo A", "Tipo B", "Tipo C", "Tipo D"], "correct": 1, "exp": "Los incendios de tipo B son de combustible líquido; el agua los potencia, se apagan con extintor.", "tier": 1}, {"q": "¿De quién depende directamente la Guardia Real?", "options": ["Del Ministerio de Defensa", "De la Casa de S.M. el Rey", "Del Ministerio del Interior", "De Presidencia del Gobierno"], "correct": 1, "exp": "La Guardia Real apoya a la Casa de S.M. el Rey, organismo que depende directamente de S.M.", "tier": 1}, {"q": "En una caravana de seguridad, ¿qué vehículo transporta objetos que carecen de valor?", "options": ["El vehículo VIP", "El vehículo de protocolo", "El vehículo de transporte", "El vehículo de incidencias"], "correct": 2, "exp": "El vehículo de transporte lleva cosas que carecen de valor.", "tier": 1}, {"q": "¿Cuál de estos NO es un cuerpo de seguridad de carácter público?", "options": ["Guardia Civil", "Policía Nacional", "Empresa de seguridad privada", "Policía Judicial"], "correct": 2, "exp": "Las empresas de seguridad privada no son cuerpos de seguridad pública.", "tier": 1}, {"q": "¿Qué entidad NO tiene, según los apuntes, policía autonómica propia?", "options": ["País Vasco", "Cataluña", "Madrid", "Navarra"], "correct": 2, "exp": "Madrid no cuenta con policía autonómica propia, a diferencia de País Vasco, Cataluña, Navarra y Canarias.", "tier": 1}, {"q": "¿Cuántos títulos tiene la Ley Orgánica 2/1986, de Fuerzas y Cuerpos de Seguridad?", "options": ["3", "4", "5", "6"], "correct": 2, "exp": "La LO 2/1986 está constituida por 5 títulos y 54 artículos.", "tier": 2}, {"q": "¿Cuántos artículos tiene la Ley Orgánica 2/1986?", "options": ["44", "54", "64", "74"], "correct": 1, "exp": "La LO 2/1986 tiene 54 artículos.", "tier": 2}, {"q": "¿Qué título de la LO 2/1986 regula a la Policía Local?", "options": ["Título 2", "Título 3", "Título 4", "Título 5"], "correct": 3, "exp": "El Título 5 de la LO 2/1986 regula a la Policía Local.", "tier": 2}, {"q": "¿Qué ley reguló posteriormente el régimen disciplinario del Cuerpo Nacional de Policía tras salir de la LO 2/1986?", "options": ["LO 4/2010", "Ley 5/2014", "LO 9/2015", "RD 393/2007"], "correct": 0, "exp": "La LO 4/2010 reguló el Régimen disciplinario del Cuerpo Nacional de Policía.", "tier": 2}, {"q": "¿En qué ley se transformó posteriormente la LO 4/2010?", "options": ["LO 2/1986", "LO 9/2015", "Ley 31/1995", "Ley 5/2014"], "correct": 1, "exp": "La LO 4/2010 se modificó y se convirtió en la LO 9/2015, del Régimen de Personal de la Policía Nacional.", "tier": 2}, {"q": "¿Qué cuerpo tiene derecho a huelga y sindicación?", "options": ["Guardia Civil", "Policía Nacional", "Guardia Real", "Policía Judicial"], "correct": 1, "exp": "La Policía Nacional, de naturaleza civil, sí tiene derecho a huelga y sindicato; la Guardia Civil no.", "tier": 2}, {"q": "¿Qué cuerpo protege a la jefatura del Gobierno?", "options": ["Guardia Civil", "Policía Nacional", "Guardia Real", "Policía Local"], "correct": 1, "exp": "A la jefatura del Gobierno la protege la Policía Nacional.", "tier": 2}, {"q": "El Consejo de Política de Seguridad es un órgano...", "options": ["Puntual, para un suceso concreto", "Permanente, en funcionamiento continuo", "Disuelto en 2010", "Exclusivo de las CCAA"], "correct": 1, "exp": "El Consejo de Política de Seguridad trabaja de forma permanente y continuada.", "tier": 2}, {"q": "El Comité de Expertos es un órgano...", "options": ["Permanente", "Que se constituye solo para un suceso concreto y se disuelve después", "Compuesto solo por policía autonómica", "Que sustituye al Consejo de Política de Seguridad"], "correct": 1, "exp": "El Comité de Expertos se constituye únicamente para un suceso concreto y se descompone al concluir.", "tier": 2}, {"q": "¿Qué ocurre si un municipio no cuenta con policía local?", "options": ["Las funciones las asume la Guardia Civil", "El municipio queda sin seguridad", "Las asume directamente la Policía Nacional siempre", "Las asume la Guardia Real"], "correct": 0, "exp": "Si no hay policía local, las funciones son asumidas por la Guardia Civil.", "tier": 2}, {"q": "¿Cuál es un objetivo de la seguridad privada?", "options": ["Sustituir a la seguridad pública en grandes eventos", "Satisfacer necesidades legítimas de seguridad de los usuarios", "Eliminar el monopolio estatal de la seguridad", "Regular el régimen disciplinario de la Policía Nacional"], "correct": 1, "exp": "Uno de los objetivos es satisfacer las necesidades legítimas de seguridad e información de los usuarios.", "tier": 2}, {"q": "Cristiano Ronaldo, cuyo sueldo paga una entidad privada, es un ejemplo de...", "options": ["Persona jurídica pública", "Persona física pública", "Persona física privada", "Persona jurídica privada"], "correct": 2, "exp": "Es persona física (ser humano) cuyo sueldo paga una entidad privada: persona física privada.", "tier": 2}, {"q": "El Ayuntamiento es un ejemplo de...", "options": ["Persona física pública", "Persona jurídica pública", "Persona física privada", "Persona jurídica privada"], "correct": 1, "exp": "El Ayuntamiento es una entidad creada por ley de carácter público: persona jurídica pública.", "tier": 2}, {"q": "¿Qué es la seguridad única?", "options": ["Seguridad ejercida solo por la policía nacional", "El resultado de combinar seguridad pública y privada de forma complementaria y subordinada", "Un cuerpo de seguridad autonómico", "La seguridad exclusiva del Rey"], "correct": 1, "exp": "La seguridad única es el resultado de pública + privada a título complementario y subordinado.", "tier": 2}, {"q": "En la teoría de los círculos concéntricos, ¿qué círculo es el primero en informar de la presencia de un agresor?", "options": ["El primer círculo", "El segundo círculo", "El tercer círculo", "Ninguno, lo hace seguridad pública"], "correct": 2, "exp": "El tercer círculo es el primero en informar y será consciente de la presencia de un agresor.", "tier": 2}, {"q": "En la teoría de los círculos concéntricos, ¿qué círculo ataca al agresor si se da el caso?", "options": ["El primer círculo", "El segundo círculo", "El tercer círculo", "Ninguno"], "correct": 1, "exp": "El segundo círculo (puesto de control y vigilancia especial) ataca al agresor si se da el caso.", "tier": 2}, {"q": "Las siglas IFA de la Matriz IFA corresponden a...", "options": ["Información, Formación, Asistencia técnica externa", "Investigación, Formación, Autorización", "Información, Filtrado, Aforo", "Inspección, Formación, Aplicación"], "correct": 0, "exp": "IFA: Información, Formación y Asistencia Técnica Externa.", "tier": 2}, {"q": "Según la diferencia entre formación e información, ¿cuál de las dos se certifica?", "options": ["La información", "La formación", "Ambas se certifican", "Ninguna se certifica"], "correct": 1, "exp": "La formación se certifica; la información no.", "tier": 2}, {"q": "Según la secuencia lógica explicada en los apuntes, ¿qué debe hacerse primero?", "options": ["Informar y después formar", "Formar y después informar", "Solo formar, nunca informar", "Solo informar, nunca formar"], "correct": 1, "exp": "La secuencia lógica es primero formar y luego informar.", "tier": 2}, {"q": "La Asistencia Técnica Externa (ATE) debe ser realizada por...", "options": ["El propio montador", "Una persona externa a la entidad", "El jefe de seguridad del evento", "El organizador"], "correct": 1, "exp": "La ATE tiene que llevarla a cabo una persona externa a la entidad, no los propios montadores.", "tier": 2}, {"q": "¿Qué Real Decreto aprueba la Norma Básica de Autoprotección (NBA)?", "options": ["RD 2816/1982", "RD 393/2007", "RD 171/2004", "RD 9/2015"], "correct": 1, "exp": "El RD 393/2007 aprueba la Norma Básica de Autoprotección.", "tier": 2}, {"q": "Cuando existe Plan de Autoprotección (PAU), el plan de emergencia y el plan de evacuación...", "options": ["Deben elaborarse aparte y por separado", "Quedan integrados dentro del PAU", "Quedan suprimidos legalmente", "Pasan a depender de protección civil exclusivamente"], "correct": 1, "exp": "El plan de emergencia y el de evacuación quedan integrados dentro del plan de autoprotección.", "tier": 2}, {"q": "En una caravana oficial abierta, ¿hay vehículo de cierre de seguridad?", "options": ["Sí, siempre", "No, no lo hay", "Solo si hay más de 2 VIP", "Solo en eventos religiosos"], "correct": 1, "exp": "En la caravana abierta no hay vehículo de seguridad de cierre, a diferencia de la cerrada.", "tier": 2}, {"q": "En una caravana oficial cerrada, el vehículo VIP va...", "options": ["Solo escoltado por un vehículo de seguridad", "Antecedido y escoltado por un vehículo de seguridad", "Sin ningún vehículo de seguridad cercano", "Detrás del vehículo de incidencias"], "correct": 1, "exp": "En la cerrada, el VIP va antecedido y escoltado por un vehículo de seguridad.", "tier": 2}, {"q": "¿Qué documento regula la realización de actividades de seguridad por personas privadas, físicas o jurídicas?", "options": ["La Ley 5/2014 de Seguridad Privada", "La LO 2/1986", "El RD 393/2007", "La Ley 31/1995"], "correct": 0, "exp": "La Ley 5/2014 (LSP) regula la prestación de actividades y servicios de seguridad privada.", "tier": 2}, {"q": "¿Qué regula el artículo 149.26 de la Constitución Española?", "options": ["La seguridad pública", "El régimen de producción, comercio, tenencia y uso de armas y explosivos", "La protección civil", "El régimen disciplinario policial"], "correct": 1, "exp": "El art. 149.26 CE atribuye al Estado el régimen de armas y explosivos.", "tier": 3}, {"q": "¿Qué artículo de la Constitución permite al Estado intervenir cuando una Comunidad Autónoma incumple gravemente sus obligaciones constitucionales?", "options": ["Art. 149", "Art. 155", "Art. 20", "Art. 9"], "correct": 1, "exp": "El art. 155 CE permite la intervención del Estado en estos casos.", "tier": 3}, {"q": "¿Cuáles son las cuatro Comunidades Autónomas que cuentan con policía autonómica propia?", "options": ["Madrid, Andalucía, Galicia y Asturias", "País Vasco, Cataluña, Navarra y Canarias", "Cataluña, Valencia, Murcia y Aragón", "País Vasco, Madrid, Cataluña y Asturias"], "correct": 1, "exp": "Las cuatro CCAA con policía propia son País Vasco, Cataluña, Navarra y Canarias.", "tier": 3}, {"q": "¿Cuál de las siguientes NO es una de las funciones de las policías autonómicas?", "options": ["Funciones propias transferidas vía estatuto", "Funciones de colaboración con las FCSE", "Funciones de prestación simultánea e indiferenciada", "Funciones exclusivas de defensa nacional"], "correct": 3, "exp": "La defensa nacional no es función de las policías autonómicas, que tienen funciones propias, de colaboración y de prestación simultánea e indiferenciada.", "tier": 3}, {"q": "¿Qué mayoría parlamentaria se necesita para aprobar una ley orgánica?", "options": ["Mayoría simple", "Mayoría absoluta", "Mayoría de dos tercios", "Unanimidad"], "correct": 1, "exp": "Una ley orgánica necesita mayoría absoluta (mitad+1) del Congreso.", "tier": 3}, {"q": "¿Qué mayoría parlamentaria se necesita para aprobar una ley ordinaria?", "options": ["Mayoría simple", "Mayoría absoluta", "Mayoría de dos tercios", "Unanimidad"], "correct": 0, "exp": "Una ley ordinaria requiere mayoría simple.", "tier": 3}, {"q": "En una votación parlamentaria, la abstención...", "options": ["No cuenta para nada", "Tiene el mismo peso que un sí", "Tiene el mismo peso que un no, según lo que contemple la cámara", "Anula la votación"], "correct": 2, "exp": "La abstención tiene el mismo peso que un NO, dependiendo de lo que contemple la cámara.", "tier": 3}, {"q": "Para habilitar un espacio público no habilitado con aforo igual o superior a 100 personas, ¿cuál de los siguientes NO es uno de los requisitos exigidos?", "options": ["Autorización municipal", "Proyecto técnico de estructuras provisionales", "Plan de evacuación y emergencia", "Visto bueno del Ministerio de Defensa"], "correct": 3, "exp": "No se exige visto bueno del Ministerio de Defensa; sí autorización municipal, proyecto técnico, plan de evacuación, plan de riesgos laborales y estudio de aforo.", "tier": 3}, {"q": "En un evento de mayor complejidad, el Plan Integral de Seguridad puede estar compuesto únicamente por...", "options": ["Plan de evacuación y plan de emergencia", "Plan de Prevención de Riesgos Laborales y Plan de Autoprotección", "Solo el Plan de Autoprotección", "Plan de Autoprotección y Plan de Riesgos Laborales y Plan de evacuación por separado"], "correct": 1, "exp": "En eventos complejos, el PRL y el Plan de Autoprotección bastan, porque este último ya integra emergencia y evacuación.", "tier": 3}, {"q": "En un evento sencillo, ¿cuáles son los cuatro documentos que componen el Plan Integral de Seguridad?", "options": ["PRL, Autoprotección, Emergencias, Evacuación", "PRL, CAE, ATE, Matriz IFA", "Reacción, Disuasión, Protección, Prevención", "Autoprotección, ISO, UNE, Reglamento"], "correct": 0, "exp": "En eventos sin mucha afluencia: PRL, Plan de Autoprotección, Plan de Emergencias y Plan de Evacuación.", "tier": 3}, {"q": "¿Por qué el Plan de Prevención de Riesgos Laborales debe existir siempre?", "options": ["Porque lo exige protección civil", "Porque las empresas tienen el deber legal de proteger la salud de sus trabajadores", "Porque lo exige la Guardia Civil", "Porque es voluntario pero recomendable"], "correct": 1, "exp": "Las empresas concurrentes tienen el deber de garantizar la protección eficaz de la seguridad y salud de los trabajadores.", "tier": 3}, {"q": "¿Cómo se clasifica la instalación de sistemas de videovigilancia en un evento?", "options": ["Medida preventiva", "Medida reactiva", "Medida de autoprotección", "Medida de disuasión exclusivamente"], "correct": 1, "exp": "Los sistemas de videovigilancia son una medida reactiva.", "tier": 3}, {"q": "¿Cómo se clasifican los filtros y el registro individualizado en el acceso?", "options": ["Medidas reactivas", "Medidas preventivas", "Nuevas medidas de seguridad", "Medidas de autoprotección"], "correct": 1, "exp": "Los filtros y el registro en el acceso son medidas preventivas.", "tier": 3}, {"q": "¿Qué es el CECOR?", "options": ["Centro de Cooperación Operativa para coordinar equipos de seguridad pública y privada", "Comité de Expertos de Coordinación Regional", "Centro de Control de Riesgos", "Cuerpo Especial de Coordinación"], "correct": 0, "exp": "El CECOR es un Centro de Cooperación Operativa que coordina equipos de seguridad y emergencia para garantizar respuesta inmediata.", "tier": 3}, {"q": "¿Cuál es la primera fase en la elaboración de un plan de seguridad?", "options": ["Evaluación de riesgos", "Ejecución", "Planificación (estudio de viabilidad)", "Capacitación del personal"], "correct": 2, "exp": "La primera fase es la planificación, basada en un estudio de viabilidad.", "tier": 3}, {"q": "¿Cuál es la última fase en la elaboración de un plan de seguridad?", "options": ["Ejecución", "Evaluación del sitio", "Educación y entrenamiento", "Determinación del personal"], "correct": 0, "exp": "La última de las 8 fases es la ejecución.", "tier": 3}, {"q": "¿A partir de qué aforo es obligatorio el Plan de Autoprotección en un espacio al aire libre?", "options": ["2.000 personas", "10.000 personas", "20.000 personas", "No es nunca obligatorio al aire libre"], "correct": 2, "exp": "Al aire libre, el PAU es obligatorio a partir de 20.000 personas.", "tier": 3}, {"q": "¿A partir de qué aforo es obligatorio el Plan de Autoprotección en un recinto cerrado desmontable?", "options": ["1.000 personas", "2.000 personas", "2.500 personas", "5.000 personas"], "correct": 2, "exp": "En recintos cerrados desmontables, el umbral es de 2.500 personas.", "tier": 3}, {"q": "¿A partir de qué altura de evacuación es obligatorio el Plan de Autoprotección en espacios cerrados?", "options": ["10 metros", "18 metros", "28 metros", "50 metros"], "correct": 2, "exp": "Una altura de evacuación igual o superior a 28 metros obliga a contar con PAU.", "tier": 3}, {"q": "Según la normativa específica de Madrid, ¿a partir de qué superficie en instalaciones cerradas temporales es obligatorio el PAU?", "options": ["200 m²", "500 m²", "1.000 m²", "2.000 m²"], "correct": 1, "exp": "En Madrid, instalaciones cerradas temporales de más de 500 m² requieren PAU.", "tier": 3}, {"q": "Según la normativa específica de Madrid, ¿a partir de cuántas personas en actividades al aire libre es obligatorio el PAU?", "options": ["5.000", "10.000", "15.000", "20.000"], "correct": 1, "exp": "En el caso particular de Madrid, actividades al aire libre de 10.000 personas exigen PAU.", "tier": 3}, {"q": "¿Qué ley regula con carácter general la Prevención de Riesgos Laborales?", "options": ["Ley 31/1995", "Ley 5/2014", "LO 2/1986", "RD 2816/1982"], "correct": 0, "exp": "La Ley 31/1995 de Prevención de Riesgos Laborales.", "tier": 3}, {"q": "¿Qué artículo de la Ley 31/1995 regula las medidas de emergencia?", "options": ["Artículo 4", "Artículo 14", "Artículo 20", "Artículo 33"], "correct": 2, "exp": "El artículo 20 de la Ley 31/1995 regula las medidas de emergencia.", "tier": 3}, {"q": "¿Qué Real Decreto regula la Coordinación de Actividades Empresariales (CAE)?", "options": ["RD 171/2004", "RD 393/2007", "RD 2816/1982", "RD 9/2015"], "correct": 0, "exp": "El RD 171/2004 regula la CAE.", "tier": 3}, {"q": "¿De quién es la responsabilidad legal de implantar la Coordinación de Actividades Empresariales (CAE)?", "options": ["Del Ayuntamiento", "Del promotor", "De cada trabajador individualmente", "De protección civil"], "correct": 1, "exp": "La figura del CAE es una responsabilidad legal del promotor.", "tier": 3}, {"q": "¿Cómo se define una caída a distinto nivel?", "options": ["Una caída que se produce a la misma cota que se está pisando", "Una caída que se produce a una cota distinta de aquella que se está pisando", "Una caída exclusivamente desde escaleras", "Una caída sin consecuencias"], "correct": 1, "exp": "La caída a distinto nivel se produce a una cota distinta de la que pisa el trabajador.", "tier": 4}, {"q": "¿Cuándo se considera que una caída a distinto nivel es, en concreto, una caída en altura?", "options": ["Cuando la diferencia de cota es de 2 metros o más", "Cuando la diferencia de cota es de 1 metro", "Siempre que haya un andamio", "Cuando se produce en el exterior"], "correct": 0, "exp": "La caída en altura es un caso particular de caída a distinto nivel con diferencia de cota de 2 metros o más.", "tier": 4}, {"q": "¿Cómo se define el riesgo eléctrico?", "options": ["La posibilidad de que un trabajador pase a formar parte de un circuito eléctrico", "La posibilidad de un apagón general", "El uso de herramientas eléctricas sin formación", "La exposición a ruido excesivo"], "correct": 0, "exp": "El riesgo eléctrico es la posibilidad de que un trabajador pase a formar parte de un circuito eléctrico.", "tier": 4}, {"q": "¿Cuál de los siguientes NO es uno de los cinco grandes grupos de riesgos laborales del sector?", "options": ["Derivados de la organización del trabajo", "Derivados del medio ambiente físico de trabajo", "Derivados del esfuerzo físico", "Derivados de la meteorología internacional"], "correct": 3, "exp": "Los cinco grupos son: organización del trabajo, medio ambiente físico, contaminantes químicos, esfuerzo físico y lugares de trabajo.", "tier": 4}, {"q": "¿Qué es la 'aplicación supletoria' de una norma?", "options": ["Que sustituye por completo a la ley especial", "Que se aplica para llenar vacíos de una ley especial, sin contradecirla", "Que anula la ley principal", "Que solo aplica en el extranjero"], "correct": 1, "exp": "La aplicación supletoria llena vacíos o lagunas de la ley especial, sin contradecirla.", "tier": 4}, {"q": "La Norma Básica de Autoprotección (NBA) respecto a la legislación de espectáculos públicos es de aplicación...", "options": ["Principal y exclusiva", "Supletoria", "Nula", "Solo penal"], "correct": 1, "exp": "La NBA es de aplicación supletoria por existir reglamentación sectorial específica.", "tier": 4}, {"q": "Según el artículo 4.c) del RD 393/2007, ¿quién está obligado a elaborar e implantar un PAU complementario en actividades temporales en instalaciones autorizadas para otros usos?", "options": ["El Ayuntamiento", "El organizador del evento", "Protección civil", "La empresa de seguridad privada"], "correct": 1, "exp": "El organizador del evento está obligado a elaborar e implantar el PAU complementario.", "tier": 4}, {"q": "¿Qué establece el Anexo II del RD 393/2007?", "options": ["El listado de sanciones", "La estructura obligatoria (9 capítulos y 3 anexos) de todo PAU", "El listado de empresas habilitadas", "El procedimiento de recurso de inconstitucionalidad"], "correct": 1, "exp": "El Anexo II establece la estructura que deben tener todos los Planes de Autoprotección.", "tier": 4}, {"q": "¿Cuál de los dos planes, emergencia o autoprotección, requiere aprobación de la autoridad competente de protección civil?", "options": ["El plan de emergencia", "El plan de autoprotección", "Ninguno de los dos", "Ambos por igual"], "correct": 1, "exp": "El plan de autoprotección requiere aprobación de la autoridad de protección civil; el de emergencia no.", "tier": 4}, {"q": "¿Se aplica el silencio administrativo al plan de emergencia?", "options": ["Sí, tras 6 meses", "No", "Solo si lo aprueba el Ayuntamiento", "Solo en Madrid"], "correct": 1, "exp": "Tampoco se aplica el silencio administrativo al plan de emergencia.", "tier": 4}, {"q": "¿Quién fija la estructura de un plan de emergencia, al no existir criterio legal único?", "options": ["El técnico del plan de emergencia", "El Ayuntamiento", "Protección civil obligatoriamente", "El Ministerio del Interior"], "correct": 0, "exp": "No hay criterio legal fijo; es el técnico del plan de emergencia quien fija su estructura.", "tier": 4}, {"q": "Si se intenta apagar con agua un incendio de tipo B (líquidos como gasolina), ¿qué sucede?", "options": ["Se apaga inmediatamente", "El agua actúa como agente potenciador del incendio", "No varía nada", "Se convierte en incendio tipo D"], "correct": 1, "exp": "En incendios tipo B, el agua potencia el fuego; debe usarse extintor.", "tier": 4}, {"q": "¿De qué tipo es un incendio cuyo combustible está en estado gaseoso, como la laca?", "options": ["Tipo A", "Tipo B", "Tipo C", "Tipo D"], "correct": 2, "exp": "Los incendios tipo C son de combustible gaseoso.", "tier": 4}, {"q": "¿De qué tipo es un incendio en el que el agente combustible es un metal en fusión?", "options": ["Tipo C", "Tipo D", "Tipo E", "Tipo A"], "correct": 1, "exp": "Los incendios tipo D se dan en industrias de fundición de metal.", "tier": 4}, {"q": "¿De qué tipo es un incendio de origen eléctrico?", "options": ["Tipo A", "Tipo C", "Tipo D", "Tipo E"], "correct": 3, "exp": "Los incendios de tipo E son de origen eléctrico.", "tier": 4}, {"q": "¿Cuántas categorías conforman, según el esquema visto, las causas de la acción criminal (la 'rueda' de causas)?", "options": ["4", "6", "8", "10"], "correct": 2, "exp": "El esquema recoge ocho categorías: políticas, ideológicas, sociológicas, psicológicas, personales, económicas, religiosas y raciales.", "tier": 4}, {"q": "¿Cuál de los siguientes NO aparece en los apuntes como fuente de peligro para una personalidad VIP?", "options": ["Secuestro", "Asesinato", "Accidentes", "Huelga sindical"], "correct": 3, "exp": "Las fuentes de peligro listadas son asesinato, secuestro, agresiones, accidentes, grupos hostiles y actos negligentes del VIP; la huelga sindical no figura.", "tier": 4}, {"q": "Según los apuntes, la secuencia que se describe para la seguridad de una personalidad es:", "options": ["Prevención - Detección - Valoración - Reacción", "Reacción - Valoración - Detección - Prevención", "Detección - Reacción - Prevención - Valoración", "Valoración - Prevención - Reacción - Detección"], "correct": 1, "exp": "Tal y como aparece en los apuntes: Reacción → Valoración → Detección → Prevención.", "tier": 4}, {"q": "¿Cuál de los siguientes NO figura entre los aspectos a tener en cuenta para garantizar la seguridad de una personalidad?", "options": ["Control de acceso", "Seguridad alimentaria", "Llamadas maliciosas", "Auditoría financiera"], "correct": 3, "exp": "La auditoría financiera no aparece en la lista de aspectos de seguridad de una personalidad.", "tier": 4}, {"q": "En la caravana oficial abierta, el vehículo piloto de seguridad pública se sitúa...", "options": ["En la parte trasera", "En la parte delantera", "En el centro", "No existe en la caravana abierta"], "correct": 1, "exp": "En la caravana abierta, el vehículo piloto de seguridad pública va en la parte delantera.", "tier": 4}, {"q": "¿Qué elementos adicionales incorpora la caravana cerrada respecto a la abierta?", "options": ["Solo un vehículo VIP adicional", "Vehículo de avanzadilla, motos de control de tráfico, vehículo de cierre y VIP2", "Un helicóptero de apoyo", "Nada, son iguales"], "correct": 1, "exp": "La caravana cerrada añade avanzadilla, motos de control de tráfico, vehículo de cierre y un segundo vehículo VIP.", "tier": 4}, {"q": "¿Quién compone los vehículos piloto y de cierre en las caravanas oficiales?", "options": ["Seguridad privada", "Seguridad pública", "Seguridad mixta", "Protección civil"], "correct": 1, "exp": "Tanto el vehículo piloto como el de cierre son de seguridad pública.", "tier": 4}, {"q": "Un Reglamento de la Unión Europea es...", "options": ["Vinculante solo para algunos países", "Vinculante y de obligado cumplimiento íntegro en toda la UE", "Una recomendación no vinculante", "Aplicable solo si se traspone"], "correct": 1, "exp": "Los reglamentos son actos vinculantes de obligado cumplimiento en toda la UE.", "tier": 4}, {"q": "Una Decisión de la Unión Europea es vinculante para...", "options": ["Toda la UE sin excepción", "Aquellos a quienes se dirige específicamente (un país o una empresa)", "Solo organismos internacionales", "Nadie, son recomendaciones"], "correct": 1, "exp": "Las decisiones son vinculantes para los destinatarios concretos a quienes se dirigen.", "tier": 4}, {"q": "Una Directiva de la Unión Europea establece...", "options": ["Normas de aplicación directa inmediata", "Objetivos comunes, dejando a cada país elaborar su propia legislación", "Sanciones penales directas", "Solo recomendaciones sin efecto"], "correct": 1, "exp": "Las directivas fijan objetivos comunes; cada Estado elabora sus propias leyes para alcanzarlos.", "tier": 4}, {"q": "¿Qué es la 'trasposición' de una directiva europea?", "options": ["El acto de incorporar la directiva a la legislación nacional, con plazo y sanciones si no se cumple", "La traducción oficial de la directiva", "La votación final en el Parlamento Europeo", "Un recurso ante el Tribunal Constitucional"], "correct": 0, "exp": "La trasposición incorpora la directiva a la legislación nacional, con fecha límite y mecanismo sancionador.", "tier": 5}, {"q": "¿Son vinculantes las Recomendaciones de la UE?", "options": ["Sí, igual que un reglamento", "No, no tienen consecuencias legales", "Solo si las aprueba el Parlamento Europeo", "Solo para los Estados miembros fundadores"], "correct": 1, "exp": "Las recomendaciones no son vinculantes ni tienen consecuencias legales.", "tier": 5}, {"q": "¿Tienen los Dictámenes de la UE obligación legal?", "options": ["Sí, siempre", "No, son declaraciones no vinculantes", "Solo si el Estado lo decide", "Sí, pero solo penalmente"], "correct": 1, "exp": "Los dictámenes permiten declaraciones institucionales no vinculantes, sin obligación legal.", "tier": 5}, {"q": "¿Quién crea las normas UNE/ISO?", "options": ["El Tribunal Constitucional", "Los Comités Técnicos de Normalización (CTN)", "El Ministerio del Interior", "La Guardia Civil"], "correct": 1, "exp": "Las normas UNE/ISO las crean los Comités Técnicos de Normalización (CTN).", "tier": 5}, {"q": "¿La aplicación de las normas ISO es obligatoria o voluntaria?", "options": ["Obligatoria en toda la UE", "Voluntaria", "Obligatoria solo en España", "Obligatoria solo para empresas públicas"], "correct": 1, "exp": "ISO es un organismo no gubernamental cuya aplicación es voluntaria.", "tier": 5}, {"q": "La norma ISO 20121 sobre sostenibilidad en eventos certifica principalmente...", "options": ["El propio evento como sostenible", "El sistema de gestión de sostenibilidad de la organización que gestiona el evento", "La seguridad física del recinto", "El presupuesto del evento"], "correct": 1, "exp": "La ISO 20121 no certifica el evento en sí, sino el sistema de gestión de sostenibilidad de la organización.", "tier": 5}, {"q": "Según Naciones Unidas, un evento sostenible debe cumplir dos objetivos: minimizar impactos negativos en el medioambiente y...", "options": ["Maximizar el beneficio económico", "Reducir el aforo permitido", "Dejar un legado beneficioso para la comunidad", "Eliminar toda actividad cultural"], "correct": 2, "exp": "El segundo objetivo es dejar un legado beneficioso para la comunidad y los públicos involucrados.", "tier": 5}, {"q": "¿De dónde nace la responsabilidad solidaria y subsidiaria?", "options": ["De la relación contractual", "De la nacionalidad de la empresa", "Del tamaño de la empresa", "De la ubicación geográfica del evento"], "correct": 0, "exp": "La responsabilidad solidaria y subsidiaria nace de la relación contractual entre las partes.", "tier": 5}, {"q": "Si una empresa subcontrata parte del trabajo a otra, ¿queda exenta de responsabilidad?", "options": ["Sí, completamente", "No, no queda exenta de ninguna responsabilidad", "Solo si el contrato lo especifica", "Solo si el subcontratado es extranjero"], "correct": 1, "exp": "El hecho de subcontratar no exime de ninguna responsabilidad.", "tier": 5}, {"q": "Un Real Decreto-Ley sirve fundamentalmente para...", "options": ["Sustituir a la Constitución", "Complementar o particularizar el contenido de leyes a un ámbito específico", "Anular leyes orgánicas", "Regular exclusivamente tratados internacionales"], "correct": 1, "exp": "El decreto-ley complementa o particulariza el contenido de una o varias leyes a un ámbito concreto.", "tier": 5}, {"q": "¿Qué hace que el Tribunal Constitucional valore la posible inconstitucionalidad de una norma?", "options": ["Que se presente un recurso de inconstitucionalidad por alguien competente", "Que lo decida directamente el Gobierno", "Que lo solicite cualquier ciudadano sin requisitos", "Que lo publique la prensa"], "correct": 0, "exp": "Es la presentación de un recurso de inconstitucionalidad por parte de alguien legitimado lo que activa la valoración del TC.", "tier": 5}, {"q": "Tras admitir a trámite un recurso de inconstitucionalidad, ¿qué otra decisión puede tomar el TC?", "options": ["Disolver el Congreso", "La posible suspensión cautelar de la norma", "Convocar elecciones", "Aprobar directamente la ley contraria"], "correct": 1, "exp": "El TC puede decidir la suspensión cautelar de la norma hasta que haya veredicto.", "tier": 5}, {"q": "¿Quién suele solicitar la suspensión cautelar de una norma recurrida, y quién decide finalmente?", "options": ["La solicita el TC y decide el recurrente", "La solicita habitualmente el recurrente y decide finalmente el TC", "La solicita el Gobierno y decide el Congreso", "No se puede solicitar nunca"], "correct": 1, "exp": "Habitualmente el recurrente solicita la suspensión cautelar, pero la decisión final es del TC.", "tier": 5}, {"q": "¿Quién autoriza la celebración de una manifestación en territorio nacional?", "options": ["El Ayuntamiento exclusivamente", "El Estado, a través de la delegación del Gobierno", "Cualquier ciudadano libremente", "La Guardia Civil"], "correct": 1, "exp": "Las manifestaciones requieren la autorización del Estado a través de la delegación del Gobierno.", "tier": 5}, {"q": "¿Quién dictamina que un partido de fútbol concreto es de alto riesgo, exigiendo seguridad privada adicional?", "options": ["El club organizador", "La delegación del Gobierno", "Protección civil", "La federación deportiva"], "correct": 1, "exp": "Es la delegación del Gobierno quien dictamina que un partido es de riesgo.", "tier": 5}, {"q": "¿En qué aspecto concreto fue 'sacada' la Policía Nacional de la LO 2/1986?", "options": ["En todas sus funciones, sin excepción", "Únicamente en su régimen de funcionamiento interno/disciplinario", "En su coordinación con otras fuerzas", "En su dependencia del Ministerio del Interior"], "correct": 1, "exp": "Solo se le excluyó en lo relativo a su régimen de funcionamiento interno, no en la coordinación con otros cuerpos.", "tier": 5}, {"q": "¿Sigue rigiéndose la Policía Nacional por la LO 2/1986 en su coordinación con otras fuerzas y cuerpos de seguridad?", "options": ["No, nunca", "Sí, en todo lo relativo a coordinación", "Solo si lo autoriza el Ministerio de Defensa", "Solo en operaciones internacionales"], "correct": 1, "exp": "En la coordinación con el resto de fuerzas y cuerpos, la Policía Nacional sigue rigiéndose por la LO 2/1986.", "tier": 5}, {"q": "¿Dónde se recoge el régimen estatutario de las policías de las Comunidades Autónomas dentro de la LO 2/1986?", "options": ["Título 1", "Título 2", "Título 3", "Título 5"], "correct": 2, "exp": "El Título 3 de la LO 2/1986 recoge el régimen estatutario de las policías autonómicas.", "tier": 5}, {"q": "¿Qué normativa contempla a la Ertzaintza como cuerpo policial funcional?", "options": ["LO 2/1986, de Fuerzas y Cuerpos de Seguridad", "Ley 5/2014 de Seguridad Privada", "RD 393/2007", "Ley 31/1995"], "correct": 0, "exp": "La LO 2/1986 contempla a la Ertzaintza como cuerpo de policía autonómica.", "tier": 5}, {"q": "Cuando se habla de la escolta de una personalidad importante, ¿de qué tipo de seguridad se está hablando?", "options": ["Solo de seguridad pública", "Solo de seguridad privada", "Puede ser de ambas, configurando seguridad única", "Exclusivamente de protección civil"], "correct": 2, "exp": "Lo normal es que sea seguridad única, combinación de pública y privada.", "tier": 5}, {"q": "¿Quién puede ejercer legalmente la seguridad privada?", "options": ["Cualquier ciudadano sin requisitos", "Despachos de detectives privados, empresas de seguridad habilitadas y personal de seguridad privada", "Solo las fuerzas del Estado", "Solo protección civil"], "correct": 1, "exp": "Pueden ejercerla despachos de detectives privados, empresas de seguridad habilitadas y personal de seguridad privada.", "tier": 5}, {"q": "¿Cuál de los siguientes NO forma parte de los conocimientos que deben tener los responsables de seguridad según los apuntes?", "options": ["Conocimiento de los posibles riesgos de daño", "Conocimiento de la legislación aplicable", "Conocimiento de idiomas extranjeros", "Conocimiento de la responsabilidad por daños"], "correct": 2, "exp": "El conocimiento de idiomas extranjeros no figura en la lista de conocimientos exigidos a los responsables.", "tier": 5}, {"q": "¿Cuál de los siguientes NO es uno de los cinco puntos esenciales en la planificación de un plan integral de seguridad?", "options": ["Dirección de seguridad", "Riesgos y obligaciones de protección", "Medidas y medios", "Plan de marketing del evento"], "correct": 3, "exp": "El plan de marketing no figura entre los puntos esenciales (dirección, riesgos, medidas, gestión de emergencias e implantación).", "tier": 5}, {"q": "¿Cuál es la diferencia en cuanto a 'aplicación' entre el plan de emergencia y el plan de autoprotección?", "options": ["El de emergencia aplica solo a veces; el de autoprotección siempre", "El de emergencia aplica siempre a empresas con trabajadores; el de autoprotección solo en ciertos casos", "Ambos aplican siempre por igual", "Ninguno de los dos es obligatorio nunca"], "correct": 1, "exp": "El plan de emergencia aplica siempre que haya trabajadores; el de autoprotección solo cuando se cumplen ciertos requisitos.", "tier": 5}, {"q": "¿Qué aforo o condición exige un Plan de Autoprotección en un espacio cerrado no desmontable?", "options": ["Aforo ≥ 2.000 o altura de evacuación ≥ 28 m", "Aforo ≥ 500 únicamente", "Altura de evacuación ≥ 10 m únicamente", "Nunca se exige en espacios cerrados fijos"], "correct": 0, "exp": "En espacios cerrados (no desmontables) basta con aforo ≥ 2.000 personas o altura de evacuación ≥ 28 metros.", "tier": 5}, {"q": "Un local cerrado fijo prevé un aforo de 2.200 personas. ¿Es obligatorio el Plan de Autoprotección?", "options": ["No, porque no es desmontable", "Sí, porque supera el umbral de 2.000 personas", "Solo si la altura de evacuación es menor de 28 m", "Solo si lo decide el Ayuntamiento"], "correct": 1, "exp": "Al superar las 2.000 personas en espacio cerrado, es obligatorio el PAU.", "tier": 6}, {"q": "Un evento al aire libre prevé 18.000 asistentes. ¿Es obligatorio el Plan de Autoprotección por aforo?", "options": ["Sí, siempre que sea al aire libre", "No, porque no alcanza las 20.000 personas", "Sí, porque supera las 10.000", "Depende del color del recinto"], "correct": 1, "exp": "Al aire libre el umbral general es 20.000 personas; con 18.000 no se alcanza por esta vía.", "tier": 6}, {"q": "En Madrid, una instalación cerrada temporal de 600 m² ¿exige Plan de Autoprotección por la normativa especial madrileña?", "options": ["No, porque no llega a 1.000 m²", "Sí, porque supera los 500 m²", "Solo si el aforo supera 2.000 personas además", "No, las instalaciones temporales nunca lo exigen"], "correct": 1, "exp": "En Madrid, instalaciones cerradas temporales de más de 500 m² requieren PAU, conforme al caso particular madrileño.", "tier": 6}, {"q": "Cuando existe Plan de Autoprotección, ¿qué ocurre exactamente con el plan de emergencia y el de evacuación?", "options": ["Se eliminan y no se hacen", "Quedan integrados como parte del PAU", "Pasan a depender directamente del Ministerio del Interior", "Se sustituyen por la Matriz IFA"], "correct": 1, "exp": "El plan de emergencia y el de evacuación pasan a formar parte integrada del PAU.", "tier": 6}, {"q": "¿Puede un montador de la propia empresa realizar la Asistencia Técnica Externa (ATE) de su propio trabajo?", "options": ["Sí, si tiene formación suficiente", "No, debe ser una persona externa a la entidad", "Sí, si lo autoriza el jefe de seguridad", "Solo en eventos pequeños"], "correct": 1, "exp": "La ATE exige una persona externa, ajena a quien realizó el montaje, para garantizar objetividad.", "tier": 6}, {"q": "¿Puede una empresa, como tal, emitir el certificado de una revisión técnica (por ejemplo, de extintores)?", "options": ["Sí, basta el sello de la empresa", "No, debe emitirlo el ATE como persona física con nombre, apellidos y DNI", "Sí, si lo firma el director general", "No, debe emitirlo el Ayuntamiento"], "correct": 1, "exp": "El certificado debe estar a nombre de la persona física del ATE, no de la empresa.", "tier": 6}, {"q": "Si se informa a los trabajadores sin haberlos formado previamente, ¿qué consecuencia describen los apuntes?", "options": ["No pasa nada, es indiferente el orden", "Parte del mensaje informativo se pierde", "Se duplica la eficacia del mensaje", "Se anula la obligación de formación posterior"], "correct": 1, "exp": "Si la gente no está formada, parte del mensaje informativo se pierde.", "tier": 6}, {"q": "La diferencia esencial entre formación e información reside en...", "options": ["El coste económico de cada una", "Que en la formación el emisor debe comprobar que el receptor entendió el mensaje; en la información no", "Que la información siempre es oral y la formación escrita", "Que solo la información es obligatoria por ley"], "correct": 1, "exp": "En la formación el emisor revisa y comprueba la comprensión; en la información solo transmite el mensaje.", "tier": 6}, {"q": "¿Cuál de las siguientes NO es una medida preventiva según los apuntes?", "options": ["Filtros en el acceso", "Control previo y al término del evento con ayuda de perros", "Sistemas de videovigilancia", "Equipos de patrulla en el interior del recinto"], "correct": 2, "exp": "Los sistemas de videovigilancia son una medida reactiva, no preventiva.", "tier": 6}, {"q": "¿Cuál de las siguientes NO es una medida reactiva según los apuntes?", "options": ["Sistemas de videovigilancia", "Control mediante pulseras RFID y smartphones", "Equipos de escáner para detección de objetos metálicos", "Registro individualizado en el acceso"], "correct": 3, "exp": "El registro individualizado en el acceso es una medida preventiva, no reactiva.", "tier": 6}, {"q": "¿Cuál de las siguientes se considera una 'nueva medida de seguridad' según los apuntes?", "options": ["Filtros en el acceso", "Drones para videovigilancia", "Equipos de patrulla", "Control previo con perros"], "correct": 1, "exp": "Los drones para videovigilancia figuran entre las nuevas medidas de seguridad.", "tier": 6}, {"q": "En la teoría de los círculos concéntricos, ¿qué círculo tiene la responsabilidad de la acción disuasoria?", "options": ["El primer círculo", "El segundo círculo", "El tercer círculo", "Ninguno, la disuasión es ajena a los círculos"], "correct": 2, "exp": "El tercer círculo es el responsable de la acción disuasoria.", "tier": 6}, {"q": "¿Qué círculo es, según los apuntes, el primero en detectar y avisar de la presencia de un agresor?", "options": ["El primer círculo", "El segundo círculo", "El tercer círculo", "La policía nacional, fuera de los círculos"], "correct": 2, "exp": "El tercer círculo de seguridad será el primero en informar y será consciente de la presencia de un agresor.", "tier": 6}, {"q": "En teoría, ¿el primer círculo (la cápsula) debería tener que actuar?", "options": ["Sí, siempre actúa el primero", "No, en teoría no debería tener que actuar jamás", "Solo en eventos al aire libre", "Solo si lo ordena el segundo círculo"], "correct": 1, "exp": "En teoría, el primer círculo no debería tener que actuar jamás; si actúa, es que algo ha fallado antes.", "tier": 6}, {"q": "¿En qué ámbito se puede aplicar la teoría de los círculos concéntricos?", "options": ["Solo en posición estática del VIP", "Solo en desplazamiento del VIP", "En cualquier circunstancia, estática o en movimiento", "Solo en interiores"], "correct": 2, "exp": "Puede aplicarse en cualquier circunstancia: posición estática o desplazamiento de la personalidad VIP.", "tier": 6}, {"q": "¿Qué regula el RD 171/2004 en relación con varias empresas trabajando en un mismo espacio?", "options": ["La Matriz IFA", "La Coordinación de Actividades Empresariales (CAE)", "El Plan de Autoprotección", "La teoría de los círculos concéntricos"], "correct": 1, "exp": "El RD 171/2004 regula la CAE, necesaria cuando concurre más de una empresa.", "tier": 6}, {"q": "Si dos empresas trabajan simultáneamente en el montaje de un evento y se estorban generando un riesgo adicional, ¿quién es responsable en primera instancia?", "options": ["Cada empresa por separado, a partes iguales", "El promotor, responsable de la planificación de los trabajos", "El Ayuntamiento", "Protección civil"], "correct": 1, "exp": "El promotor es responsable en primera instancia de la indebida planificación de los trabajos concurrentes.", "tier": 6}, {"q": "¿Cuáles son las dos causas fundamentales de accidentes graves o muy graves en el sector?", "options": ["Ruido y vibraciones", "Riesgo eléctrico y caída de altura", "Estrés laboral y mala alimentación", "Falta de uniformidad y mal tiempo"], "correct": 1, "exp": "El riesgo eléctrico y la caída de altura son las dos causas fundamentales de accidentes graves.", "tier": 6}, {"q": "¿A partir de qué diferencia de cota se considera, técnicamente, una caída en altura?", "options": ["0,5 metros", "1 metro", "2 metros o más", "5 metros o más"], "correct": 2, "exp": "Se considera caída en altura cuando la diferencia de cota es de 2 metros o más.", "tier": 6}, {"q": "En el ejemplo de Pepito Pérez actuando en el Estadio Municipal de Butarque, ¿quién es el titular y de qué naturaleza?", "options": ["El cantante, naturaleza física privada", "El Ayuntamiento donde está ubicado el estadio, naturaleza jurídica pública", "La discográfica, naturaleza jurídica privada", "El público asistente"], "correct": 1, "exp": "El titular es el Ayuntamiento (jurídica pública); el promotor es el cantante (física privada).", "tier": 6}, {"q": "En el mismo ejemplo, ¿quién actúa como promotor y de qué naturaleza?", "options": ["El Ayuntamiento, naturaleza jurídica pública", "El cantante Pepito Pérez, naturaleza física privada", "El estadio, sin naturaleza jurídica", "El público, naturaleza física privada"], "correct": 1, "exp": "El promotor es el cantante que se autoproduce; su naturaleza es física privada.", "tier": 6}, {"q": "¿En qué tipo de caravana aparece un segundo vehículo VIP (VIP2)?", "options": ["Solo en la caravana abierta", "Solo en la caravana cerrada", "En ambas por igual", "Nunca aparece un VIP2"], "correct": 1, "exp": "El VIP2 solo aparece en la composición de la caravana cerrada.", "tier": 6}, {"q": "¿En qué tipo de caravana aparecen motos de control de tráfico?", "options": ["Solo en la abierta", "Solo en la cerrada", "En ninguna de las dos", "En ambas, indistintamente"], "correct": 1, "exp": "Las motos de control de tráfico solo figuran en la composición de la caravana cerrada.", "tier": 6}, {"q": "Afirmación: 'La LO 2/1986 no aplica en ningún término a la Policía Nacional'. ¿Es correcta?", "options": ["Sí, es correcta totalmente", "No, es incorrecta: solo se excluyó su régimen interno, sigue aplicándose en coordinación", "Sí, porque la Policía Nacional tiene su propia ley íntegra", "Es parcialmente correcta solo en Madrid"], "correct": 1, "exp": "Es una afirmación incorrecta (trampa típica): la PN sigue rigiéndose por la LO 2/1986 en todo lo relativo a coordinación.", "tier": 6}, {"q": "¿Qué Real Decreto Ley sirvió para sacar a la Policía Nacional de su régimen disciplinario interno de la LO 2/1986?", "options": ["LO 4/2010 (posteriormente LO 9/2015)", "RD 393/2007", "RD 2816/1982", "Ley 5/2014"], "correct": 0, "exp": "La LO 4/2010 (luego LO 9/2015) reguló aparte el régimen disciplinario/de personal de la Policía Nacional.", "tier": 6}, {"q": "Una Comunidad Autónoma sin policía autonómica propia organiza un evento de 25.000 personas al aire libre. ¿Qué cuerpos de seguridad pública intervendrán y qué documento es obligatorio por el aforo?", "options": ["Policía autonómica propia y ningún documento adicional", "Las FCSE del Estado (Guardia Civil/Policía Nacional) y Plan de Autoprotección, al superar 20.000 personas", "Solo seguridad privada, sin intervención pública", "Únicamente protección civil, sin necesidad de PAU"], "correct": 1, "exp": "Al no haber policía propia, intervienen las FCSE del Estado, y al superar 20.000 personas al aire libre es obligatorio el PAU.", "tier": 7}, {"q": "Para que una Comunidad Autónoma cree o modifique su policía propia mediante el Estatuto de Autonomía, ¿qué tipo de ley estatal lo debe permitir?", "options": ["Un decreto-ley", "Una ley ordinaria", "Una ley orgánica", "Un reglamento europeo"], "correct": 2, "exp": "El art. 149.29 exige que esto se haga en el marco de lo que disponga una ley orgánica.", "tier": 7}, {"q": "Si una Comunidad Autónoma con policía propia incumple gravemente sus obligaciones constitucionales, ¿qué mecanismo puede activar el Estado?", "options": ["El artículo 155 de la Constitución", "La disolución directa del Parlamento autonómico", "Un recurso de inconstitucionalidad obligatorio", "La intervención de la UE"], "correct": 0, "exp": "El art. 155 CE permite la intervención estatal ante incumplimientos graves.", "tier": 7}, {"q": "¿Por qué puede existir la Ertzaintza si la seguridad pública es competencia exclusiva del Estado según el art. 149.29?", "options": ["Porque la Constitución prohíbe expresamente las policías autonómicas, pero se hace una excepción", "Porque el propio art. 149.29 permite la creación de policías autonómicas vía estatuto y ley orgánica", "Porque el País Vasco no forma parte de España a estos efectos", "Porque la Ertzaintza depende directamente de la UE"], "correct": 1, "exp": "El art. 149.29 contempla expresamente la posibilidad de crear policías autonómicas si lo permite el estatuto y una ley orgánica.", "tier": 7}, {"q": "En un montaje con tres empresas trabajando simultáneamente sin CAE implementado, se produce un accidente. ¿Quién responde en primera instancia?", "options": ["Solo la empresa cuyo trabajador sufrió el accidente", "El promotor, responsable de la planificación de los trabajos concurrentes", "El Ayuntamiento, por no supervisar", "Nadie, al ser un riesgo compartido"], "correct": 1, "exp": "La responsabilidad legal del CAE, y por tanto de la planificación, recae en el promotor.", "tier": 7}, {"q": "Una empresa subcontrata la seguridad del montaje a un tercero que provoca un fallo grave. ¿Queda la empresa principal exenta de responsabilidad?", "options": ["Sí, al haber subcontratado", "No, la subcontratación no exime de ninguna responsabilidad", "Solo si el contrato lo especifica", "Solo si el subcontratado es extranjero"], "correct": 1, "exp": "El hecho de subcontratar no exime de ninguna responsabilidad, conforme a la responsabilidad solidaria y subsidiaria.", "tier": 7}, {"q": "Una empresa quiere certificar que ha instalado suficientes extintores en su ubicación correcta. ¿A quién debe acudir y qué requisito debe cumplir el certificado?", "options": ["A cualquier proveedor de extintores; basta el sello de la empresa", "A un ATE externo; el certificado debe incluir nombre, apellidos y DNI de la persona física", "A protección civil directamente; sin más requisitos", "Al Ayuntamiento, sin necesidad de técnico"], "correct": 1, "exp": "Debe acudir a una Asistencia Técnica Externa, cuyo certificado exige identificación de la persona física (nombre, apellidos, DNI).", "tier": 7}, {"q": "En un evento complejo, ¿por qué basta con el Plan de Prevención de Riesgos Laborales y el Plan de Autoprotección, sin necesidad de planes de emergencia y evacuación separados?", "options": ["Porque la ley los elimina en eventos grandes", "Porque el Plan de Autoprotección ya integra el plan de emergencia y el de evacuación", "Porque protección civil los sustituye directamente", "Porque solo se exige en eventos pequeños"], "correct": 1, "exp": "El plan de emergencia y el de evacuación forman parte integrada del Plan de Autoprotección.", "tier": 7}, {"q": "Un recinto cerrado fijo prevé un aforo de 1.800 personas pero su altura de evacuación es de 30 metros. ¿Es obligatorio el Plan de Autoprotección?", "options": ["No, porque el aforo no llega a 2.000", "Sí, porque la altura de evacuación supera los 28 metros", "No, porque es fijo y no desmontable", "Solo si además supera 2.000 personas"], "correct": 1, "exp": "Aunque el aforo no llegue a 2.000, basta con que la altura de evacuación sea ≥ 28 m para exigir PAU.", "tier": 7}, {"q": "Un evento al aire libre en Madrid prevé 9.500 asistentes. ¿Se aplica la normativa especial madrileña de PAU para actividades al aire libre?", "options": ["Sí, porque supera los 5.000", "No, porque no llega a las 10.000 personas que exige el caso particular de Madrid", "Sí, automáticamente por celebrarse en Madrid", "No, porque Madrid no tiene normativa especial"], "correct": 1, "exp": "El caso particular de Madrid exige 10.000 personas en actividades al aire libre; con 9.500 no se alcanza ese umbral específico.", "tier": 7}, {"q": "Afirmación: 'El plan de evacuación siempre requiere aprobación de la autoridad competente'. ¿Es correcta?", "options": ["Sí, siempre la requiere", "No, solo el plan de autoprotección requiere esa aprobación", "Sí, pero solo en eventos al aire libre", "No, ningún plan la requiere nunca"], "correct": 1, "exp": "Solo el plan de autoprotección requiere aprobación de la autoridad de protección civil; el de evacuación, por sí solo, no.", "tier": 7}, {"q": "¿Cuál es la diferencia de objeto regulado entre la LO 2/1986 y la Ley 5/2014 (LSP)?", "options": ["Ambas regulan exactamente lo mismo", "La LO 2/1986 regula las fuerzas y cuerpos de seguridad del Estado; la LSP regula la seguridad privada, subordinada a la primera", "La LSP deroga a la LO 2/1986", "La LO 2/1986 solo regula tráfico"], "correct": 1, "exp": "La LO 2/1986 organiza la seguridad pública estatal; la LSP regula la seguridad privada, complementaria y subordinada a ella.", "tier": 7}, {"q": "En un evento donde colaboran simultáneamente Policía Nacional y vigilantes de seguridad privada para escoltar a un VIP, ¿cómo se denomina ese dispositivo conjunto?", "options": ["Seguridad pública pura", "Seguridad privada pura", "Seguridad única", "Protección civil"], "correct": 2, "exp": "La combinación complementaria y subordinada de seguridad pública y privada se denomina seguridad única.", "tier": 7}, {"q": "¿Se aplica el silencio administrativo en materia de protección civil o para las licencias relacionadas con ella?", "options": ["Sí, en ambos casos", "No, en ningún caso", "Solo para licencias, no para protección civil", "Solo si pasan 6 meses sin respuesta"], "correct": 1, "exp": "Ni en protección civil ni en sus licencias se aplica el silencio administrativo.", "tier": 7}, {"q": "¿Qué artículo constitucional regula específicamente el régimen de armas y explosivos, distinto del que regula la seguridad pública general?", "options": ["Art. 149.29", "Art. 149.26", "Art. 155", "Art. 20"], "correct": 1, "exp": "El art. 149.26 regula armas y explosivos; el 149.29 regula la seguridad pública general.", "tier": 7}, {"q": "Se produce el secuestro puntual de un concejal. ¿Qué órgano de coordinación se activa específicamente para este suceso?", "options": ["El Consejo de Política de Seguridad", "El Comité de Expertos", "La Guardia Real", "El Tribunal Constitucional"], "correct": 1, "exp": "El Comité de Expertos se constituye para sucesos concretos como este, disolviéndose después.", "tier": 7}, {"q": "A diferencia del Comité de Expertos, ¿qué característica define al Consejo de Política de Seguridad?", "options": ["También se disuelve tras cada suceso", "Es permanente y trabaja de forma continuada", "No incluye a todas las fuerzas", "Solo opera en Madrid"], "correct": 1, "exp": "El Consejo de Política de Seguridad es permanente, a diferencia del Comité de Expertos.", "tier": 7}, {"q": "¿Tiene la Guardia Civil representación sindical?", "options": ["Sí, igual que la Policía Nacional", "No, ni representación sindical ni derecho a huelga", "Solo en su rama de tráfico", "Solo desde 2015"], "correct": 1, "exp": "La Guardia Civil, de estructura militar, no tiene derecho a representación sindical ni a huelga.", "tier": 7}, {"q": "Si una caravana oficial circula por una zona donde la tabla de niveles de amenaza marca nivel 4, ¿qué tipo de refuerzo corresponde según los apuntes?", "options": ["Extremar la vigilancia únicamente", "Reforzar las medidas de seguridad habituales", "Refuerzo policial en las grandes ciudades", "Medidas de seguridad y protección máximas"], "correct": 2, "exp": "El nivel 4 (amenaza severa) corresponde a refuerzo policial en las grandes ciudades.", "tier": 7}, {"q": "Según la tabla de niveles de amenaza, el nivel 5 implica qué tipo de medidas?", "options": ["Extremar la vigilancia", "Reforzar medidas habituales", "Refuerzo policial en grandes ciudades", "Medidas de seguridad y protección máximas"], "correct": 3, "exp": "El nivel 5, ante una amenaza crítica y ataque inminente, implica medidas de seguridad y protección máximas.", "tier": 7}, {"q": "Según la tabla de niveles de amenaza, el nivel 1 implica qué tipo de medidas?", "options": ["Medidas de seguridad y protección máximas", "Refuerzo policial en grandes ciudades", "Extremar la vigilancia", "Reforzar medidas de seguridad habituales"], "correct": 2, "exp": "El nivel 1, ante una amenaza factible, implica extremar la vigilancia con medidas locales.", "tier": 7}, {"q": "En el triángulo del fuego, si se elimina por completo el comburente, ¿qué ocurre con el fuego?", "options": ["Se intensifica", "Se extingue, al faltar uno de los tres componentes necesarios", "No varía", "Se convierte en incendio tipo D"], "correct": 1, "exp": "Al faltar cualquiera de los tres componentes del triángulo del fuego, este se extingue.", "tier": 7}, {"q": "Un incendio de tipo B se intenta extinguir erróneamente con agua. ¿Cuál es la consecuencia y el método correcto?", "options": ["Se apaga igual, pero más despacio", "El agua actúa como potenciador; el método correcto es el extintor", "No hay diferencia con el tipo A", "Se debe usar arena exclusivamente"], "correct": 1, "exp": "En incendios líquidos (tipo B) el agua potencia el fuego; el extintor es el método adecuado.", "tier": 7}, {"q": "¿Cuál de las siguientes afirmaciones describe correctamente el plan de evacuación en un edificio según el código de colores indicado en los apuntes?", "options": ["Se plasma en señales de color verde", "Se plasma en señales de color rojo", "No usa señalización de colores", "Se plasma en azul"], "correct": 0, "exp": "Lo relativo al plan de evacuación se plasma en señales de color verde (el de emergencia, en rojo).", "tier": 7}, {"q": "¿Y en qué color se plasma, en un edificio, todo lo relativo al plan de emergencia?", "options": ["Verde", "Rojo", "Amarillo", "Azul"], "correct": 1, "exp": "Lo relativo al plan de emergencia se plasma en señales de color rojo.", "tier": 7}, {"q": "La Policía Nacional fue 'derogada' de las FCSE en el Título 2, Cap. IV de la LO 2/1986 y trasladada a una ley aparte. ¿Sigue, no obstante, rigiéndose por la LO 2/1986 en algún aspecto?", "options": ["No, en ningún aspecto", "Sí, en todo lo relativo a su coordinación con el resto de fuerzas y cuerpos de seguridad", "Solo si actúa fuera de España", "Solo en su relación con la Guardia Real"], "correct": 1, "exp": "Aunque su régimen disciplinario interno se reguló aparte, en coordinación con el resto de cuerpos sigue rigiéndose por la LO 2/1986.", "tier": 8}, {"q": "Identifica el error en la siguiente afirmación: 'La Policía Nacional es de naturaleza militar y no tiene derecho a huelga, igual que la Guardia Civil'.", "options": ["Es correcta en su totalidad", "Es errónea: la Policía Nacional es de naturaleza civil y sí tiene derecho a huelga", "Es errónea solo en lo de la huelga", "Es errónea solo en lo de la naturaleza militar"], "correct": 1, "exp": "La Policía Nacional es de naturaleza civil y sí tiene derecho a huelga y sindicación, a diferencia de la Guardia Civil.", "tier": 8}, {"q": "Si una Comunidad Autónoma desea crear una policía propia donde antes no existía, ¿qué pasos legales necesita según los apuntes?", "options": ["Solo un decreto autonómico", "Que su Estatuto lo permita y se ajuste a lo dispuesto por una ley orgánica estatal", "Aprobación directa de la UE", "Ningún requisito adicional"], "correct": 1, "exp": "Necesita que su Estatuto lo permita y que respete las reglas fijadas por una ley orgánica estatal, conforme al art. 149.29.", "tier": 8}, {"q": "En un proceso de recurso de inconstitucionalidad, ¿qué dos primeras decisiones adopta el Tribunal Constitucional?", "options": ["Sentencia firme y publicación en el BOE", "Admisión a trámite y, en su caso, suspensión cautelar", "Disolución del Congreso y nueva votación", "Consulta a la UE y referéndum"], "correct": 1, "exp": "Las dos primeras decisiones son la admisión a trámite y la posible suspensión cautelar de la norma.", "tier": 8}, {"q": "En la Matriz IFA aplicada a la evacuación de un evento, ¿qué combinación es la correcta entre la formación del personal de seguridad y la información a los asistentes?", "options": ["Solo se certifica la información a los asistentes", "Se forma al personal de seguridad (se certifica) y se informa a los asistentes (no se certifica)", "Ambas se certifican por igual", "Ninguna de las dos se certifica"], "correct": 1, "exp": "La formación del personal se certifica; la información a los asistentes no se certifica, solo se transmite.", "tier": 8}, {"q": "Una oficina sin público, con 50 trabajadores, en un edificio normal. ¿Qué plan es obligatorio según la Ley 31/1995?", "options": ["Plan de Autoprotección obligatoriamente", "Plan de emergencia, conforme al art. 20 de la Ley 31/1995", "Ningún plan, por ser pocos trabajadores", "Plan de evacuación exclusivamente, sin plan de emergencia"], "correct": 1, "exp": "Cualquier centro de trabajo con trabajadores debe tener plan de emergencia (art. 20 Ley 31/1995), independientemente del aforo.", "tier": 8}, {"q": "Esa misma oficina pasa a tener un aforo de 2.100 personas en un edificio cerrado fijo. ¿Qué documento adicional se vuelve obligatorio?", "options": ["Ninguno adicional", "El Plan de Autoprotección, al superar las 2.000 personas", "Solo un plan de marketing de seguridad", "Un decreto-ley específico"], "correct": 1, "exp": "Al superar el aforo de 2.000 personas en espacio cerrado, se vuelve obligatorio el Plan de Autoprotección.", "tier": 8}, {"q": "Un espectáculo sin finalidad lucrativa se celebra en un local de titularidad privada. ¿Le es aplicable el RD 2816/1982?", "options": ["No, solo aplica a eventos con finalidad lucrativa", "No, solo aplica a titularidad pública", "Sí, aplica con independencia de la titularidad y de la finalidad lucrativa", "Solo si el aforo supera 1.000 personas"], "correct": 2, "exp": "El RD 2816/1982 aplica con independencia de que la titularidad sea pública o privada y de que haya o no finalidad lucrativa.", "tier": 8}, {"q": "¿Cuándo es obligatorio incluir un croquis de recorrido con horarios en la documentación de un evento?", "options": ["Siempre, en todos los eventos", "Solo en eventos móviles que impliquen desplazamiento por la ciudad (ej. carnavales)", "Nunca es obligatorio", "Solo si el aforo supera 20.000 personas"], "correct": 1, "exp": "El croquis de recorrido con horarios se exige en eventos móviles o con dispositivo móvil que impliquen desplazamiento.", "tier": 8}, {"q": "De los requisitos para habilitar un espacio público no habilitado (aforo ≥100), ¿cuál de los siguientes falta en esta lista incompleta: autorización municipal, proyecto técnico, plan de riesgos laborales, estudio de aforo?", "options": ["Plan de evacuación y emergencia", "Visado de la UE", "Informe de la Guardia Civil", "Aprobación del Ministerio de Defensa"], "correct": 0, "exp": "Falta el plan de evacuación y emergencia, uno de los seis requisitos exigidos.", "tier": 8}, {"q": "¿En cuáles de los siguientes casos NO se aplica el silencio administrativo, según los apuntes?", "options": ["Solo en licencias municipales generales", "En protección civil, en sus licencias y en la autorización municipal para habilitar un espacio público", "Solo en el Plan de Autoprotección", "En ningún caso administrativo relacionado con seguridad"], "correct": 1, "exp": "El silencio administrativo no se aplica en protección civil, sus licencias, ni en la autorización municipal para habilitar espacios públicos.", "tier": 8}, {"q": "Durante un desplazamiento a pie del VIP, ¿qué círculo de la teoría concéntrica asegura que pueda salir en caso de evacuación?", "options": ["El primer círculo", "El segundo círculo", "El tercer círculo", "Ningún círculo, lo hace protección civil"], "correct": 2, "exp": "El tercer círculo (patrullas móviles e información) asegura la salida de la personalidad VIP en caso de evacuación.", "tier": 8}, {"q": "Si la fase de disuasión (3er círculo) no logra su objetivo, ¿qué ocurre según los apuntes?", "options": ["El evento se cancela automáticamente", "Se pasa a la fase de protección, y el VIP se entera de que hay un agresor merodeando", "Se repite indefinidamente la disuasión", "Se activa directamente el segundo círculo sin que el VIP lo sepa"], "correct": 1, "exp": "Cuando la disuasión no funciona, se pasa a la fase de protección, en la que el VIP sí se enterará del agresor.", "tier": 8}, {"q": "Cuando el agresor ya está actuando y hay un choque directo de intereses, ¿a qué fase del DPR corresponde la respuesta?", "options": ["Disuasión", "Protección", "Reacción", "Ninguna, se trata de prevención"], "correct": 2, "exp": "La fase de reacción se activa ante el choque de intereses entre el bien protegido y el agente agresor.", "tier": 8}, {"q": "¿Cuál es el objetivo concreto de la fase de reacción, según los apuntes?", "options": ["Evitar cualquier contacto visual con el agresor", "Minimizar los daños y volver rápidamente a la normalidad, neutralizando la acción del agresor", "Informar a la prensa", "Aumentar el nivel de amenaza permanentemente"], "correct": 1, "exp": "En la reacción se procura minimizar daños, neutralizar al agresor y volver rápido a la normalidad.", "tier": 8}, {"q": "¿Cuál es el objetivo concreto de la fase de protección, según los apuntes?", "options": ["Informar a los medios de comunicación", "Detectar e identificar al agente agresor, garantizando que no llegue a manifestarse", "Sustituir a la disuasión por completo", "Aplicar sanciones administrativas"], "correct": 1, "exp": "La protección busca detectar, identificar y garantizar la no manifestación del agente agresor antes de que actúe.", "tier": 8}, {"q": "Un atentado motivado por creencias religiosas se enmarca, en el esquema de causas de la acción criminal, dentro de la categoría...", "options": ["Económica", "Religiosa", "Sociológica", "Medioambiental"], "correct": 1, "exp": "Las creencias religiosas se enmarcan dentro de la categoría 'religiosas' del esquema de causas.", "tier": 8}, {"q": "Si España no traspone una directiva europea dentro del plazo establecido, ¿qué puede ocurrir según los apuntes?", "options": ["Nada, las directivas no tienen plazo", "Se activa el mecanismo sancionador previsto para el Estado miembro incumplidor", "La directiva se anula automáticamente", "La UE expulsa al país"], "correct": 1, "exp": "Existe un mecanismo sancionador para el Estado miembro que, vencido el plazo, no haya transpuesto la directiva.", "tier": 8}, {"q": "¿Cuál es la diferencia principal entre un Reglamento y una Decisión de la UE en cuanto a sus destinatarios?", "options": ["El Reglamento se dirige a destinatarios concretos y la Decisión a toda la UE", "El Reglamento es vinculante para toda la UE; la Decisión solo para destinatarios concretos a los que se dirige", "Ambos son exactamente iguales en destinatarios", "Ninguno tiene destinatarios definidos"], "correct": 1, "exp": "El reglamento vincula a toda la UE; la decisión solo a los destinatarios concretos señalados.", "tier": 8}, {"q": "¿Puede una Recomendación de la UE convertirse en obligatoria con el paso del tiempo?", "options": ["Sí, automáticamente tras 5 años", "No, nunca tiene consecuencias legales por sí misma", "Sí, si lo aprueba el país destinatario", "Solo si afecta a seguridad pública"], "correct": 1, "exp": "Las recomendaciones nunca tienen consecuencias legales, independientemente del tiempo transcurrido.", "tier": 8}, {"q": "¿La certificación ISO 20121 obliga legalmente a su cumplimiento?", "options": ["Sí, es de obligado cumplimiento en la UE", "No, es voluntaria, aunque certifica el sistema de gestión de sostenibilidad", "Sí, pero solo en eventos públicos", "No, y tampoco certifica nada"], "correct": 1, "exp": "ISO 20121 es voluntaria; certifica el sistema de gestión de sostenibilidad de la organización, no obliga legalmente.", "tier": 8}, {"q": "¿Cuál de los siguientes NO es un beneficio atribuido a la norma ISO 20121 según los apuntes?", "options": ["Disminución de la huella de carbono", "Mayor control sobre proveedores y contratistas", "Aumento automático del aforo permitido", "Mejora de la imagen corporativa"], "correct": 2, "exp": "El aumento del aforo permitido no es un beneficio de la ISO 20121; sí lo son la reducción de huella de carbono, mejor control de proveedores e imagen corporativa, entre otros.", "tier": 8}, {"q": "¿La responsabilidad solidaria y subsidiaria desaparece si la empresa principal subcontrata todo el trabajo?", "options": ["Sí, desaparece por completo", "No, se mantiene igualmente, pues nace de la relación contractual y el deber de control", "Solo desaparece si el subcontratado tiene seguro", "Depende del país de origen del subcontratado"], "correct": 1, "exp": "La responsabilidad solidaria y subsidiaria se mantiene; subcontratar no exime de ella.", "tier": 8}, {"q": "¿Puede una Comunidad Autónoma aprobar por sí misma una ley orgánica estatal para crear su policía propia?", "options": ["Sí, mediante su Parlamento autonómico", "No, las leyes orgánicas requieren mayoría absoluta del Congreso de los Diputados", "Sí, si lo aprueba un referéndum local", "No, lo aprueba directamente el Rey"], "correct": 1, "exp": "Las leyes orgánicas son competencia del Congreso de los Diputados, con mayoría absoluta; una CCAA no puede aprobarlas por sí sola.", "tier": 8}, {"q": "Un Real Decreto-Ley, ¿puede sustituir por completo a una ley orgánica?", "options": ["Sí, siempre que el Gobierno lo decida", "No, el decreto-ley complementa o particulariza leyes a un ámbito concreto, sin sustituir a la ley orgánica", "Sí, en situaciones de emergencia nacional sin límite", "No, los decretos-ley están prohibidos en España"], "correct": 1, "exp": "El decreto-ley sirve para complementar o particularizar el contenido de leyes a un ámbito específico, no para sustituir a una ley orgánica.", "tier": 8}, {"q": "Festival de música al aire libre en Madrid con 22.000 asistentes, varias empresas de montaje trabajando simultáneamente y una caravana de autoridades. ¿Cuáles son, como mínimo, los documentos/obligaciones legales exigibles?", "options": ["Solo un Plan de Evacuación", "Plan de Autoprotección (por superar 20.000 al aire libre), Plan de Prevención de Riesgos Laborales y Coordinación de Actividades Empresariales (CAE) por concurrencia de empresas", "Únicamente la autorización del Ayuntamiento", "Solo seguridad privada contratada, sin más trámites"], "correct": 1, "exp": "Por el aforo se exige PAU; por haber trabajadores, PRL siempre; y por concurrir varias empresas, CAE.", "tier": 9}, {"q": "El mismo evento reduce su aforo a 19.000 personas, pero ahora se celebra en un recinto cerrado y fijo con altura de evacuación de 30 metros. ¿Sigue siendo obligatorio el Plan de Autoprotección?", "options": ["No, porque no llega a 20.000 personas", "Sí, porque la altura de evacuación supera los 28 metros, aunque el aforo no alcance el umbral de aire libre", "No, porque al ser cerrado fijo no aplica ningún umbral", "Solo si además es desmontable"], "correct": 1, "exp": "Para espacios cerrados, basta con que la altura de evacuación sea ≥28 m, independientemente del aforo o de que sea o no al aire libre.", "tier": 9}, {"q": "Durante el evento se detecta una amenaza de nivel 3 (atentados graves probables) según la tabla de niveles. ¿Qué tipo de medidas corresponde aplicar?", "options": ["Extremar la vigilancia únicamente", "Reforzar las medidas de seguridad habituales", "Medidas complementarias de seguridad específicas en función de las amenazas", "Medidas de seguridad y protección máximas"], "correct": 2, "exp": "El nivel 3 corresponde a medidas complementarias de seguridad específicas en función de las amenazas detectadas.", "tier": 9}, {"q": "El organizador subcontrata la seguridad a una empresa que no forma adecuadamente a su personal, y se produce un fallo de seguridad grave. ¿Quién responde legalmente, y por qué principio?", "options": ["Solo la empresa subcontratada, por el principio de especialidad", "El organizador/promotor, sin eximirse por subcontratar, en virtud de la responsabilidad solidaria y subsidiaria", "Nadie, al tratarse de un caso fortuito", "El Ayuntamiento, por no supervisar el evento"], "correct": 1, "exp": "La subcontratación no exime de responsabilidad; el organizador responde solidaria y subsidiariamente.", "tier": 9}, {"q": "Un escolta del primer círculo (la cápsula) tiene que intervenir directamente contra un agresor. ¿Qué indica esto sobre el funcionamiento ideal de la teoría de los círculos concéntricos?", "options": ["Que el sistema funcionó perfectamente", "Que han fallado las fases previas de disuasión (3er círculo) y protección/reacción (2º círculo)", "Que se debe aumentar el aforo del evento", "Que la amenaza era de nivel 1"], "correct": 1, "exp": "En teoría, el primer círculo no debería actuar jamás; su intervención indica que las fases previas de disuasión y reacción del 2º y 3er círculo no contuvieron al agresor.", "tier": 9}, {"q": "La Ertzaintza coordina una operación conjunta con la Policía Nacional. ¿Bajo qué marco legal se rige esa coordinación, a pesar de que la Policía Nacional fue excluida de la LO 2/1986 en otro aspecto?", "options": ["Exclusivamente por normativa autonómica vasca", "Por la LO 2/1986, ya que la exclusión de la Policía Nacional solo afectó a su régimen interno, no a la coordinación", "Por un tratado internacional específico", "No existe marco legal para esa coordinación"], "correct": 1, "exp": "Toda coordinación entre cuerpos, incluida la Policía Nacional, se rige por la LO 2/1986, pese a que su régimen disciplinario interno se reguló aparte.", "tier": 9}, {"q": "El Tribunal Constitucional admite a trámite un recurso de inconstitucionalidad contra una ley autonómica y concede la suspensión cautelar solicitada. ¿Qué ocurre con esa ley hasta que haya sentencia firme?", "options": ["Sigue plenamente en vigor sin restricciones", "Queda en suspensión hasta que se resuelva el recurso", "Se deroga automáticamente y de forma definitiva", "Pasa a depender directamente del Congreso"], "correct": 1, "exp": "Si el TC concede la suspensión cautelar, la ley queda en suspensión hasta que haya un veredicto definitivo.", "tier": 9}, {"q": "Una empresa de seguridad privada investiga antecedentes de un cliente sin la debida cobertura legal sobre privacidad. ¿Qué objetivo de la seguridad privada estaría vulnerando directamente?", "options": ["Complementar el monopolio estatal de la seguridad", "Satisfacer las necesidades legítimas de seguridad e información velando por la indemnidad/privacidad de las personas", "Aportar información a las investigaciones policiales", "Prevenir infracciones administrativas"], "correct": 1, "exp": "Estaría vulnerando el objetivo de velar por la indemnidad y privacidad de las personas frente a vulneraciones de derechos.", "tier": 9}, {"q": "Una empresa forma adecuadamente a su personal de seguridad pero no informa a los asistentes sobre las salidas de emergencia del evento. Según la Matriz IFA, ¿qué riesgo conceptual se genera?", "options": ["Ninguno, la formación del personal basta por sí sola", "Falta la información complementaria a la formación, lo que puede comprometer una evacuación eficaz de los asistentes", "Se duplica innecesariamente el coste del evento", "El plan de autoprotección queda automáticamente invalidado"], "correct": 1, "exp": "La información complementa a la formación; sin informar a los asistentes, su comportamiento en una emergencia puede no ser el adecuado, aunque el personal esté bien formado.", "tier": 9}, {"q": "La Guardia Civil custodia la seguridad de la Casa de S.M. el Rey y, a su vez, otra unidad de Guardia Civil se encarga de la seguridad de Presidencia del Gobierno. ¿Qué diferencia institucional explica esta doble estructura?", "options": ["No existe diferencia, son la misma unidad con otro nombre", "La Casa de S.M. el Rey depende directamente del Rey como Jefe de Estado; Presidencia del Gobierno depende del Ejecutivo", "Una depende de la UE y otra del Estado español", "Una es de naturaleza civil y otra militar"], "correct": 1, "exp": "Son estructuras paralelas porque dependen de instituciones distintas: la Casa Real depende del Rey, y la unidad de Presidencia depende del Gobierno.", "tier": 9}, {"q": "Se celebra una manifestación sin haber solicitado la autorización de la delegación del Gobierno. ¿Qué consecuencia legal cabe esperar, conforme a lo explicado en los apuntes?", "options": ["Ninguna, las manifestaciones son siempre libres sin trámite", "Sería irregular, ya que se requiere autorización expresa de la delegación del Gobierno para manifestarse en territorio nacional", "Solo se sanciona si hay disturbios", "Se requiere solo notificación, nunca autorización"], "correct": 1, "exp": "Según los apuntes, no se puede manifestar en ningún punto del territorio sin expresa autorización del Gobierno, vía delegación del Gobierno.", "tier": 9}, {"q": "¿Por qué la seguridad privada se define como 'complementaria y subordinada' y no como 'sustitutiva' de la seguridad pública, conforme a la Ley 5/2014?", "options": ["Porque la LSP así lo establece expresamente, al considerar estas actividades complementarias y subordinadas a la seguridad pública", "Porque la seguridad privada tiene más medios que la pública", "Porque la seguridad pública ha desaparecido en la práctica", "Porque lo decide cada empresa de seguridad libremente"], "correct": 0, "exp": "La propia LSP califica estas actividades como complementarias y subordinadas respecto de la seguridad pública, nunca sustitutivas.", "tier": 9}, {"q": "Una personalidad VIP de alto riesgo se desplaza bajo una amenaza de nivel 4. ¿Qué tipo de caravana oficial resulta más adecuada y por qué?", "options": ["Abierta, porque es más rápida", "Cerrada, porque incorpora vehículo piloto y vehículo de cierre, además de antecedente y escolta directos al VIP", "Ninguna de las dos, se prescinde de caravana", "Abierta, porque no requiere coordinación con tráfico"], "correct": 1, "exp": "Ante mayor riesgo, la caravana cerrada ofrece mayor protección al incluir piloto, cierre, avanzadilla y escolta directa del vehículo VIP.", "tier": 9}, {"q": "Comparando plan de emergencia y plan de autoprotección en sus cuatro ejes (sustento legal, aplicación, contenido y aprobación): ¿cuál de las siguientes combinaciones es correcta?", "options": ["Ambos requieren aprobación de protección civil y tienen contenido fijado por ley", "El de emergencia se basa en el art. 20 Ley 31/95, aplica siempre, sin contenido fijado legalmente y sin aprobación de autoridad; el de autoprotección se basa en el RD 393/2007, aplica solo en ciertos casos, con contenido fijado en el Anexo II y requiere aprobación de protección civil", "Ambos aplican solo en ciertos casos y ninguno requiere aprobación", "El de autoprotección nunca requiere aprobación, solo el de emergencia"], "correct": 1, "exp": "Esta es la combinación correcta de las cuatro diferencias señaladas en los apuntes entre ambos planes.", "tier": 9}, {"q": "¿Por qué el Plan de Prevención de Riesgos Laborales nunca puede faltar, incluso existiendo un Plan de Autoprotección que integra emergencia y evacuación?", "options": ["Porque protección civil lo exige aparte siempre", "Porque el deber de proteger la salud y seguridad de los trabajadores (Ley 31/95) es independiente de la existencia de otros planes y nunca puede sustituirse por ellos", "Porque es el único plan que se certifica", "Porque sin él no se puede contratar seguridad privada"], "correct": 1, "exp": "El PRL responde al deber legal indelegable de proteger a los trabajadores, distinto de la protección a los asistentes que cubre el PAU.", "tier": 9}, {"q": "Si la amenaza alcanza el nivel 5 (crítica, con ataque inminente), ¿qué círculo de la teoría concéntrica debería estar en disposición de intervenir directamente como última barrera?", "options": ["El tercer círculo", "El segundo círculo", "El primer círculo (la cápsula)", "Ninguno, se evacúa el evento sin intervención"], "correct": 2, "exp": "Ante el fallo de la disuasión (3er círculo) y la protección/reacción (2º círculo), el primer círculo (la cápsula) sería la última barrera de intervención directa.", "tier": 9}, {"q": "¿Cómo se relaciona la 'prestación simultánea e indiferenciada' de las policías autonómicas con la competencia exclusiva del Estado en seguridad pública (art. 149.29)?", "options": ["Es incompatible y, de hecho, está prohibida por la Constitución", "Ambas pueden actuar al mismo tiempo realizando tareas similares sin perjuicio de que la seguridad pública siga siendo, en última instancia, competencia exclusiva del Estado", "Significa que las policías autonómicas sustituyen completamente a las del Estado", "Solo se aplica en eventos deportivos"], "correct": 1, "exp": "La prestación simultánea e indiferenciada permite la actuación conjunta sin que ello contradiga la competencia exclusiva estatal en seguridad pública.", "tier": 9}, {"q": "Una empresa promotora alega que no tenía obligación de implantar el Plan de Prevención de Riesgos Laborales porque subcontrató todo el montaje a terceros. ¿Es jurídicamente correcta esta alegación?", "options": ["Sí, la subcontratación traslada toda la obligación al subcontratista", "No, el deber de garantizar la protección de los trabajadores es indelegable y la subcontratación no exime de responsabilidad", "Sí, pero solo si el subcontratista tiene seguro", "Depende del número de trabajadores subcontratados"], "correct": 1, "exp": "El deber legal de protección de los trabajadores es indelegable; subcontratar no exime de responsabilidad.", "tier": 9}, {"q": "La UE quiere imponer una normativa uniforme e inmediata sobre seguridad en grandes eventos, sin dejar margen de adaptación a los Estados miembros. ¿Qué instrumento legal utilizaría?", "options": ["Una Directiva", "Un Reglamento", "Una Recomendación", "Un Dictamen"], "correct": 1, "exp": "El Reglamento es vinculante y de aplicación íntegra e inmediata en toda la UE, sin margen de adaptación nacional.", "tier": 9}, {"q": "Si, en cambio, la UE quiere fijar objetivos comunes de seguridad pero dejar a cada Estado la forma de alcanzarlos, ¿qué instrumento utilizaría?", "options": ["Un Reglamento", "Una Decisión", "Una Directiva", "Un Dictamen"], "correct": 2, "exp": "La Directiva fija objetivos comunes, dejando a cada Estado miembro elaborar su propia legislación (mediante trasposición) para alcanzarlos.", "tier": 9}, {"q": "¿La certificación ISO 20121 de un evento exime a la organización de sus obligaciones legales en materia de seguridad?", "options": ["Sí, la sustituye completamente", "No, es una certificación voluntaria del sistema de gestión de sostenibilidad, y no sustituye ninguna obligación legal de seguridad", "Sí, pero solo para el PRL", "Solo exime de la CAE"], "correct": 1, "exp": "La ISO 20121 es voluntaria y relativa a sostenibilidad; en ningún caso sustituye las obligaciones legales en materia de seguridad.", "tier": 9}, {"q": "Afirmación a evaluar: 'Todos los Cuerpos y Fuerzas de Seguridad del Estado tienen naturaleza civil'. ¿Es correcta?", "options": ["Sí, todos sin excepción", "No, la Guardia Civil tiene naturaleza militar, a diferencia de la Policía Nacional", "Sí, salvo la Guardia Real", "No, ninguno tiene naturaleza civil"], "correct": 1, "exp": "Es falsa: la Guardia Civil es de naturaleza militar; la Policía Nacional, en cambio, sí es de naturaleza civil.", "tier": 9}, {"q": "Afirmación a evaluar: 'El Comité de Expertos es un órgano permanente, igual que el Consejo de Política de Seguridad'. ¿Es correcta?", "options": ["Sí, ambos son permanentes", "No, el Comité de Expertos es puntual y se disuelve al concluir el suceso; el Consejo es permanente", "Sí, pero solo el Comité es permanente", "No, ninguno de los dos es permanente"], "correct": 1, "exp": "Es falsa: el Comité de Expertos es puntual; solo el Consejo de Política de Seguridad es permanente.", "tier": 9}, {"q": "Un evento extremo combina: aforo superior a 20.000 al aire libre, presencia de un VIP con amenaza de nivel 5, múltiples empresas concurrentes y zonas cerradas anexas con altura de evacuación superior a 28 metros. ¿Qué conjunto mínimo de planes y dispositivos legales coexistirían?", "options": ["Solo el Plan de Evacuación", "Plan de Autoprotección, Plan de Prevención de Riesgos Laborales, Coordinación de Actividades Empresariales (CAE) y la teoría de círculos concéntricos llevada a su máximo nivel de alerta", "Únicamente seguridad privada contratada", "Solo la autorización municipal, sin planes adicionales"], "correct": 1, "exp": "Por aforo y altura se exige PAU; por haber trabajadores, PRL; por concurrencia empresarial, CAE; y por el riesgo VIP, la aplicación máxima de la teoría de círculos concéntricos.", "tier": 9}, {"q": "¿Cuál es la diferencia conceptual esencial entre formación e información según la Matriz IFA, y por qué resulta crucial en la gestión de emergencias de un evento?", "options": ["No hay diferencia real, son sinónimos en la gestión de emergencias", "En la formación el emisor comprueba la comprensión del receptor y se certifica; en la información el emisor solo transmite sin comprobar nada, por lo que sin formación previa el mensaje informativo puede perderse, comprometiendo la respuesta ante emergencias", "La información siempre es más fiable que la formación", "La formación solo aplica a directivos, nunca a operarios"], "correct": 1, "exp": "La diferencia esencial está en la comprobación de comprensión (formación, certificable) frente a la mera transmisión (información, no certificable); por ello, sin formación previa, la información puede no calar y comprometer la respuesta ante emergencias.", "tier": 9}];
+
+// Blocks: tiers 1-3 -> block 0 ; tiers 4-6 -> block 1 ; tiers 7-9 -> block 2
+const BLOCKS = [
+  {label:"Bloque 1", tiers:[1,2,3], name:"Bloque 1 · Nivel fácil → medio"},
+  {label:"Bloque 2", tiers:[4,5,6], name:"Bloque 2 · Nivel medio → medio-alto"},
+  {label:"Bloque 3", tiers:[7,8,9], name:"Bloque 3 · Nivel alto → máximo"}
+];
+
+const tierColors = {1:'var(--t1)',2:'var(--t2)',3:'var(--t3)',4:'var(--t4)',5:'var(--t5)',6:'var(--t6)',7:'var(--t7)',8:'var(--t8)',9:'var(--t9)'};
+
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function questionsForBlock(blockIdx){
+  // Builds the question list for a block, shuffling the order of questions
+  // WITHIN each difficulty level, but always keeping the levels themselves
+  // in ascending order of difficulty (so the progression is never lost).
+  const tiers = BLOCKS[blockIdx].tiers;
+  let result = [];
+  tiers.forEach(t=>{
+    const tierQuestions = QUESTIONS.filter(q => q.tier === t);
+    result = result.concat(shuffleArray(tierQuestions));
+  });
+  return result;
+}
+
+// Global state
+let state = {
+  blockIdx: 0,
+  qIdx: 0,
+  list: [],
+  answers: {},      // global key `${tier}-${qtextHash}` not needed; use absolute index within QUESTIONS
+  blockAnswered: [], // booleans for current block list
+  selectedOption: null,
+  allAnswers: {}     // index in QUESTIONS (global id) -> {selected, correct}
+};
+
+function globalId(q){ return QUESTIONS.indexOf(q); }
+
+function show(id){
+  ['screen-landing','screen-quiz','screen-blocksummary','screen-final','screen-review'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden', s!==id);
+  });
+}
+
+function goLanding(){
+  show('screen-landing');
+}
+
+function goLandingConfirm(){
+  const ok = window.confirm('¿Seguro que quieres volver al inicio?\n\nSaldrás de este bloque antes de terminarlo y perderás las respuestas dadas hasta ahora en él.');
+  if(ok){
+    goLanding();
+  }
+}
+
+function resetBlockConfirm(){
+  const ok = window.confirm('¿Reiniciar este bloque?\n\nSe borrarán todas las respuestas que has dado en este bloque y volverás a la pregunta 1.');
+  if(ok){
+    resetBlock();
+  }
+}
+
+function resetBlock(){
+  // Remove answers belonging only to the current block's questions
+  state.list.forEach(q=>{
+    const gid = globalId(q);
+    delete state.allAnswers[gid];
+  });
+  // Reshuffle the order within each difficulty level so it's not the same order again
+  state.list = questionsForBlock(state.blockIdx);
+  state.qIdx = 0;
+  state.blockAnswered = new Array(state.list.length).fill(false);
+  renderQuestion();
+}
+
+function startBlock(blockIdx){
+  state.blockIdx = blockIdx;
+  state.qIdx = 0;
+  state.list = questionsForBlock(blockIdx);
+  // Clear any leftover answers for this block's questions so it always starts fresh
+  // (this is what prevented clicking options after returning to a half-finished block)
+  state.list.forEach(q=>{ delete state.allAnswers[globalId(q)]; });
+  state.blockAnswered = new Array(state.list.length).fill(false);
+  state.selectedOption = null;
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function renderGauge(){
+  const gauge = document.getElementById('gauge');
+  gauge.innerHTML = '';
+  const totalTiers = 9;
+  const currentTierGlobalIndex = state.list[state.qIdx].tier; // 1..9
+  for(let t=1;t<=totalTiers;t++){
+    const seg = document.createElement('div');
+    seg.className = 'seg' + (t<=currentTierGlobalIndex ? ' done' : '');
+    seg.style.setProperty('--seg-color', tierColors[t]);
+    if(t===3 || t===6) seg.classList.add('block-end');
+    gauge.appendChild(seg);
+  }
+}
+
+function renderQuestion(){
+  const q = state.list[state.qIdx];
+  document.getElementById('qm-block').textContent = BLOCKS[state.blockIdx].name;
+  document.getElementById('qm-counter').textContent = 'Pregunta ' + (state.qIdx+1) + ' de ' + state.list.length + ' · Nivel ' + q.tier;
+  document.getElementById('qtext').textContent = q.q;
+  renderGauge();
+
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = '<span class="letter">'+letters[i]+'</span>' + opt;
+    btn.onclick = ()=>selectOption(i);
+    optsDiv.appendChild(btn);
+  });
+
+  document.getElementById('explain').classList.remove('show');
+  document.getElementById('explain').textContent = '';
+  document.getElementById('btn-next').disabled = true;
+  document.getElementById('btn-next').textContent = (state.qIdx === state.list.length-1) ? 'Ver resultado del bloque' : 'Siguiente';
+}
+
+function selectOption(i){
+  const q = state.list[state.qIdx];
+  const gid = globalId(q);
+  if(state.allAnswers[gid] !== undefined) return; // already answered
+  const isCorrect = (i === q.correct);
+  state.allAnswers[gid] = {selected:i, correct:isCorrect};
+  state.blockAnswered[state.qIdx] = true;
+
+  const opts = document.querySelectorAll('#options .opt');
+  opts.forEach((btn, idx)=>{
+    btn.disabled = true;
+    if(idx === q.correct) btn.classList.add('correct');
+    if(idx === i && i !== q.correct) btn.classList.add('wrong');
+  });
+
+  const exp = document.getElementById('explain');
+  exp.textContent = (isCorrect ? '✓ Correcto. ' : '✗ Incorrecto. ') + q.exp;
+  exp.classList.add('show');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion(){
+  if(state.qIdx < state.list.length-1){
+    state.qIdx++;
+    renderQuestion();
+  } else {
+    showBlockSummary();
+  }
+}
+
+function scoreFor(list){
+  let correct=0, answered=0;
+  list.forEach(q=>{
+    const gid = globalId(q);
+    if(state.allAnswers[gid] !== undefined){
+      answered++;
+      if(state.allAnswers[gid].correct) correct++;
+    }
+  });
+  return {correct, answered, total:list.length};
+}
+
+function showBlockSummary(){
+  const list = state.list;
+  const {correct, total} = scoreFor(list);
+  document.getElementById('bs-title').textContent = BLOCKS[state.blockIdx].name + ' · completado';
+  document.getElementById('bs-score').textContent = correct + ' / ' + total;
+  const pct = Math.round((correct/total)*100);
+  document.getElementById('bs-sub').textContent = pct + '% de aciertos en este bloque.';
+
+  // breakdown by tier within block
+  let rows = '<tr><th>Nivel</th><th>Aciertos</th><th>% </th></tr>';
+  BLOCKS[state.blockIdx].tiers.forEach(t=>{
+    const tlist = list.filter(q=>q.tier===t);
+    const s = scoreFor(tlist);
+    const p = Math.round((s.correct/s.total)*100);
+    rows += '<tr><td>Nivel '+t+'</td><td>'+s.correct+' / '+s.total+'</td><td><span class="pill '+(p>=50?'ok':'bad')+'">'+p+'%</span></td></tr>';
+  });
+  document.getElementById('bs-table').innerHTML = rows;
+
+  const continueBtn = document.getElementById('bs-continue');
+  if(state.blockIdx < 2){
+    continueBtn.textContent = 'Continuar al Bloque ' + (state.blockIdx+2);
+  } else {
+    continueBtn.textContent = 'Ver resultado final';
+  }
+  show('screen-blocksummary');
+}
+
+function continueFromBlockSummary(){
+  if(state.blockIdx < 2){
+    startBlock(state.blockIdx+1);
+  } else {
+    showFinalSummary();
+  }
+}
+
+function showFinalSummary(){
+  const {correct, total} = scoreFor(QUESTIONS);
+  document.getElementById('final-score').textContent = correct + ' / ' + total;
+  const pct = Math.round((correct/total)*100);
+  document.getElementById('final-sub').textContent = pct + '% de aciertos en el total de las 225 preguntas.';
+
+  let rows = '<tr><th>Bloque</th><th>Aciertos</th><th>%</th></tr>';
+  BLOCKS.forEach((b, idx)=>{
+    const list = questionsForBlock(idx);
+    const s = scoreFor(list);
+    const p = Math.round((s.correct/s.total)*100);
+    rows += '<tr><td>'+b.name+'</td><td>'+s.correct+' / '+s.total+'</td><td><span class="pill '+(p>=50?'ok':'bad')+'">'+p+'%</span></td></tr>';
+  });
+  document.getElementById('final-table').innerHTML = rows;
+  show('screen-final');
+}
+
+function showReview(scope){
+  const list = (scope==='block') ? state.list : QUESTIONS;
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  let any = false;
+  const letters = ['A','B','C','D'];
+  list.forEach(q=>{
+    const gid = globalId(q);
+    const a = state.allAnswers[gid];
+    if(a && !a.correct){
+      any = true;
+      const div = document.createElement('div');
+      div.className = 'review-item';
+      div.innerHTML =
+        '<div class="review-q">'+q.q+'</div>' +
+        '<div class="review-ans your-wrong">Tu respuesta: '+letters[a.selected]+') '+q.options[a.selected]+'</div>' +
+        '<div class="review-ans correct-ans">Correcta: '+letters[q.correct]+') '+q.options[q.correct]+'</div>' +
+        '<div class="review-ans sans" style="color:var(--muted);">'+q.exp+'</div>';
+      reviewList.appendChild(div);
+    }
+  });
+  document.getElementById('review-empty').style.display = any ? 'none' : 'block';
+  show('screen-review');
+}
+
+function restartAll(){
+  state = {blockIdx:0, qIdx:0, list:[], answers:{}, blockAnswered:[], selectedOption:null, allAnswers:{}};
+  goLanding();
+}
+
+goLanding();
+</script>
+</body>
+</html>
